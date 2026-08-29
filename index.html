@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>公司打卡</title>
+<style>
+  :root{
+    --teal:#0E7C66; --teal-d:#0A5E4C; --teal-soft:#E4F1EC;
+    --amber:#E29A2E; --ink:#1c2b26; --muted:#8a938f; --line:#E9EDEB; --bg:#F3F5F4; --card:#fff;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body{ margin:0; font-family:"PingFang TC","Microsoft JhengHei",system-ui,sans-serif; background:var(--bg); color:var(--ink); }
+  .wrap{ max-width:480px; margin:0 auto; padding:14px 16px 84px; }
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; }
+  h1{ font-size:20px; margin:0 0 4px; font-weight:800; }
+  h2{ font-size:15px; margin:18px 0 9px; font-weight:800; }
+  h3{ font-size:13px; margin:0; font-weight:800; }
+  .sub{ color:var(--muted); font-size:13px; margin-bottom:8px; }
+  .muted{ color:var(--muted); font-size:12.5px; }
+  .date{ color:var(--muted); font-size:13px; margin-bottom:6px; }
+  label{ font-size:13px; color:#374151; display:block; margin:12px 0 6px; }
+  .lbl{ font-size:12px; color:var(--muted); font-weight:700; margin:14px 2px 6px; display:block; }
+  select,input,textarea,.fld{ width:100%; border:1px solid var(--line); border-radius:13px; padding:12px 14px;
+    font-size:15px; font-family:inherit; background:#fff; color:var(--ink); }
+  select.fld,select{ height:48px; }
+  .two{ display:flex; gap:10px; } .two>div{ flex:1; } .mini{ font-size:12px; color:var(--muted); font-weight:700; display:block; margin-bottom:4px; }
+
+  /* punch hero */
+  .hero{ background:linear-gradient(150deg,var(--teal),var(--teal-d)); color:#fff; border-radius:20px; padding:15px 18px;
+    position:relative; overflow:hidden; }
+  .hero:after{ content:""; position:absolute; right:-40px; top:-46px; width:140px; height:140px; background:rgba(255,255,255,.09); border-radius:50%; }
+  .hero-top{ display:flex; align-items:center; justify-content:space-between; }
+  .greet{ font-size:13px; opacity:.94; } .clock{ font-size:30px; font-weight:800; letter-spacing:1px; }
+  .hero-date{ font-size:11.5px; opacity:.82; margin-top:3px; }
+  .pbody{ padding-top:2px; }
+
+  .gps{ margin-top:10px; display:flex; align-items:center; gap:8px; background:#f3f4f6; color:#4b5563;
+    border-radius:12px; padding:10px 13px; font-size:13px; font-weight:700; }
+  .gps.ok{ background:var(--teal-soft); color:var(--teal-d); }
+  .gps.err{ background:#fdecea; color:#b91c1c; }
+  .gps .dot{ width:8px; height:8px; border-radius:50%; background:var(--teal); box-shadow:0 0 0 4px rgba(14,124,102,.18); }
+  .gpsrow{ display:flex; align-items:center; gap:8px; }
+  .gpsrow .gps{ flex:1; margin-top:10px; }
+  .reloc{ margin-top:10px; flex:0 0 auto; border:1px solid var(--line); background:#fff; color:var(--teal-d); border-radius:11px; padding:10px 12px; font-size:12.5px; font-weight:700; font-family:inherit; white-space:nowrap; }
+  .safari{ display:block; text-align:center; margin-top:10px; color:var(--teal-d); font-size:13.5px; font-weight:800; text-decoration:underline; }
+
+  .punchbtns{ display:flex; gap:12px; margin-top:16px; }
+  .pbtn{ flex:1; border:none; border-radius:16px; padding:16px 0; font-size:17px; font-weight:800; font-family:inherit;
+    display:flex; flex-direction:column; align-items:center; gap:5px; }
+  .pbtn .ico{ display:flex; } .pbtn svg{ width:23px; height:23px; }
+  .pbtn.in{ background:var(--teal); color:#fff; box-shadow:0 9px 18px rgba(14,124,102,.26); }
+  .pbtn.out{ background:#fff; color:var(--amber); border:1.6px solid #F0D9AC; }
+  .pbtn:disabled{ opacity:.5; }
+  .otlbl{ display:flex; align-items:center; gap:8px; margin:18px 2px 0; font-size:12px; font-weight:800; color:var(--muted); }
+  .otlbl:before,.otlbl:after{ content:""; flex:1; height:1px; background:var(--line); }
+  .otbtns{ display:flex; gap:12px; margin-top:9px; }
+  .otbtn{ flex:1; border:1.4px solid #d7e4df; background:#F4F8F6; color:var(--teal-d); border-radius:14px; padding:13px 0;
+    font-size:15px; font-weight:800; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .otbtn svg{ width:19px; height:19px; } .otbtn:disabled{ opacity:.5; }
+  .otbtn.end{ color:var(--amber); border-color:#F0D9AC; background:#FDF6EA; }
+
+  .primary{ width:100%; border:none; border-radius:13px; padding:15px 0; font-size:16px; font-weight:800; color:#fff;
+    background:var(--teal); font-family:inherit; margin-top:18px; box-shadow:0 8px 16px rgba(14,124,102,.20); }
+  .primary:disabled{ opacity:.5; }
+  .miniwarn{ font-size:12px; color:var(--teal-d); background:var(--teal-soft); border-radius:11px; padding:9px 12px; margin-top:10px; font-weight:600; }
+
+  .btns{ display:flex; gap:12px; margin-top:16px; }
+  .btns button{ flex:1; border:none; border-radius:13px; padding:15px 0; font-size:16px; font-weight:800; color:#fff; font-family:inherit; }
+  .btns .in{ background:var(--teal); }
+  .result{ margin-top:14px; padding:13px; border-radius:12px; font-size:15px; text-align:center; display:none; }
+  .result.show{ display:block; } .result.good{ background:var(--teal-soft); color:var(--teal-d); } .result.bad{ background:#fdecea; color:#b91c1c; }
+  .uid{ font-family:monospace; font-size:12px; background:#f3f4f6; padding:8px; border-radius:6px; word-break:break-all; margin:8px 0; }
+
+  /* overview */
+  .datebar{ display:flex; align-items:center; gap:8px; background:#fff; border:1px solid var(--line); border-radius:12px; padding:6px; margin-bottom:14px; }
+  .datebar .dbtn{ border:none; background:var(--teal-soft); color:var(--teal-d); width:34px; height:34px; border-radius:9px; font-size:18px; font-weight:800; font-family:inherit; }
+  .datebar .dpick{ position:relative; flex:1; display:block; text-align:center; cursor:pointer; }
+  .datebar .dpick input[type=date]{ position:absolute; inset:0; width:100%; height:100%; opacity:0; border:0; cursor:pointer; }
+  .datebar .dcap{ font-weight:800; font-size:14.5px; }
+  .datebar .dtoday{ border:1px solid #cfe6dd; background:var(--teal-soft); color:var(--teal-d); border-radius:9px; padding:7px 12px; font-size:12.5px; font-weight:800; font-family:inherit; }
+  .myday-title{ font-size:12px; color:var(--muted); font-weight:800; margin-bottom:11px; }
+  .myday{ display:flex; gap:11px; }
+  .myday .cell{ flex:1; text-align:center; background:#F6F8F7; border:1px solid #eef2f1; border-radius:12px; padding:14px 6px; }
+  .myday .cell span{ display:block; font-size:12px; color:var(--muted); font-weight:700; margin-bottom:5px; }
+  .myday .cell b{ font-size:27px; font-weight:800; letter-spacing:1px; }
+  .myday .cell.miss b{ color:#CF5B4A; font-size:18px; }
+  .myleave{ text-align:center; background:#DCEFE7; border:1px solid #BEE2D4; border-radius:13px; padding:18px; font-weight:800; font-size:28px; color:var(--teal-d); letter-spacing:3px; }
+  .myleave small{ display:block; font-size:12px; font-weight:800; color:#0F8A63; letter-spacing:1px; margin-bottom:5px; }
+  .tag{ font-size:11px; font-weight:800; padding:3px 10px; border-radius:20px; }
+  .tag.ok{ background:var(--teal-soft); color:var(--teal-d); } .tag.wait{ background:#FAEFD9; color:#8A5A0E; } .tag.bad{ background:#FBE6E3; color:#A5382A; }
+  .arow{ background:#fff; border:1px solid var(--line); border-radius:13px; padding:11px 13px; margin-bottom:8px; }
+  .arow.pend{ border-left:3px solid var(--amber); }
+  .row{ display:flex; justify-content:space-between; align-items:center; }
+  .arow b{ font-size:14px; font-weight:800; }
+  .empty{ color:#b6c0bb; font-size:12.5px; padding:2px 2px 4px; }
+  .pbtns{ display:flex; gap:9px; margin-top:10px; }
+  .pbtns button{ flex:1; border:none; border-radius:10px; padding:9px 0; font-size:13.5px; font-weight:800; font-family:inherit; }
+  .pbtns .approve{ background:var(--teal); color:#fff; } .pbtns .reject{ background:#fff; color:#A5382A; border:1.3px solid #EBC7C0; }
+  .refresh{ width:100%; border:1px solid var(--line); background:#fff; border-radius:12px; padding:12px; font-size:14px; font-family:inherit; margin-top:10px; color:var(--ink); }
+  #ovSiteFilter{ margin-bottom:10px; }
+  .sitegrp{ margin-bottom:10px; }
+  table.att{ width:100%; border-collapse:collapse; font-size:13px; background:#fff; border-radius:10px; overflow:hidden; }
+  table.att th,table.att td{ border:1px solid #eef2f1; padding:7px 9px; text-align:center; }
+  table.att th{ background:#F4F8F6; color:var(--teal-d); }
+  table.att td.nm{ text-align:left; font-weight:700; }
+  table.att tr.miss td{ color:#CF5B4A; }
+
+  /* schedule */
+  .hdr h1{ font-size:19px; } .hdr p{ font-size:12px; color:var(--muted); margin:3px 0 0; }
+  .msel{ display:flex; align-items:center; justify-content:center; gap:14px; background:#fff; border:1px solid var(--line);
+    border-radius:12px; padding:7px; margin:12px 0 0; font-weight:800; font-size:15px; }
+  .msel .ar{ border:none; background:transparent; color:var(--teal); font-size:20px; font-weight:800; font-family:inherit; padding:0 12px; }
+  .cal{ margin-top:12px; background:#fff; border:1px solid var(--line); border-radius:14px; padding:8px 6px; }
+  .wk{ display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:11px; font-weight:800; color:var(--muted); padding:2px 0 6px; }
+  .wk .we{ color:#c2597c; }
+  .grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+  .cell{ min-height:50px; border-radius:9px; padding:4px 3px; position:relative; background:#fafbfa; overflow:hidden; }
+  .cell.wend{ background:#f1f4f3; } .cell.empty{ background:transparent; }
+  .cell .n{ font-size:11px; font-weight:800; color:#3a4844; }
+  .cell.holi .n{ color:#D0452F; }
+  .cell .pts{ position:absolute; top:4px; right:4px; display:flex; gap:2px; }
+  .cell .pts i{ width:6px; height:6px; border-radius:50%; }
+  .cell .lv{ position:absolute; left:3px; right:3px; bottom:3px; text-align:center; font-size:11px; font-weight:800; }
+  .cell.has .n{ color:#fff; position:relative; z-index:1; }
+  .cell.has .lv{ color:#fff; }
+  .cell.f-rest{ background:var(--teal); } .cell.f-year{ background:#2F7EA8; }
+  .cell.f-sick{ background:#C58A2A; } .cell.f-perso{ background:#6A5AB0; } .cell.f-other{ background:#7C8B85; }
+  .legend{ margin-top:12px; }
+  .lg-row{ display:flex; flex-wrap:wrap; gap:6px 10px; margin-bottom:7px; align-items:center; }
+  .lg-ttl{ font-size:10.5px; color:var(--muted); font-weight:800; }
+  .lg{ font-size:11px; font-weight:800; display:flex; align-items:center; gap:4px; color:#57655f; }
+  .lg .sw{ width:13px; height:13px; border-radius:4px; display:inline-block; } .lg .pt{ width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .snote{ margin-top:11px; font-size:11.5px; color:var(--muted); background:#fff; border:1px dashed var(--line); border-radius:11px; padding:9px 11px; line-height:1.5; }
+
+  /* bottom tab bar */
+  .tabbar{ position:fixed; left:0; right:0; bottom:0; background:#fff; border-top:1px solid var(--line); z-index:60; }
+  .tabinner{ max-width:480px; margin:0 auto; display:flex; height:62px; padding-bottom:4px; }
+  .tabbar .t{ flex:1; border:none; background:transparent; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    font-size:11px; color:#9aa8a2; font-weight:800; font-family:inherit; }
+  .tabbar .t.on{ color:var(--teal); }
+  .tabbar .t svg{ width:21px; height:21px; }
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap"><div class="card"><div class="sub" id="boot">載入中…</div></div></div>
+
+<template id="punchTpl">
+  <div class="hero">
+    <div class="hero-top"><span class="greet" id="greet"></span><span class="clock" id="clock"></span></div>
+    <div class="hero-date" id="heroDate"></div>
+  </div>
+  <div class="pbody">
+    <label class="lbl">打卡位置</label>
+    <select id="siteSel" class="fld"><option>載入中…</option></select>
+    <div id="otherWrap" style="display:none">
+      <label class="lbl">地點／事由（必填）</label>
+      <input id="otherReason" class="fld" placeholder="例：送件市政府 / 拜訪業主">
+    </div>
+    <div class="gpsrow"><div class="gps" id="gps">定位中…</div><button type="button" class="reloc" id="relocBtn">↻ 重新定位</button></div>
+    <a id="safariBtn" class="safari" style="display:none">↗ 定位一直失敗？改用 Safari 打卡</a>
+    <label class="lbl">備註（選填）</label>
+    <input id="note" class="fld" placeholder="例：交通延誤，遲到 10 分">
+    <div class="punchbtns">
+      <button class="pbtn in" id="btnIn" disabled><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4"/><path d="M3 12h11"/><path d="M9 8l4 4-4 4"/></svg></span>上班</button>
+      <button class="pbtn out" id="btnOut" disabled><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#E29A2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4"/><path d="M21 12H10"/><path d="M17 8l4 4-4 4"/></svg></span>下班</button>
+    </div>
+    <div class="otlbl">加班（於工地內按）</div>
+    <div class="otbtns">
+      <button class="otbtn" id="btnOtIn" disabled><svg viewBox="0 0 24 24" fill="none" stroke="#0A5E4C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>加班開始</button>
+      <button class="otbtn end" id="btnOtOut" disabled><svg viewBox="0 0 24 24" fill="none" stroke="#E29A2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/><path d="M8 3l2 2"/></svg>加班結束</button>
+    </div>
+    <div class="result" id="result"></div>
+  </div>
+</template>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+  var LIFF_ID = "2011018188-xd2VsV0A";                                   // ← LINE Login 沿用舊的即可
+  var GAS_URL = "https://script.google.com/macros/s/AKfycbx6fUEPK68TdacpmWVzk-0t_0fQMOqUjyRWm_RastD9YY-fkST9Lzaqg5Pq0gP18Af3/exec";
+
+  // ===== 自動破快取：每次改版把下面版本號換新值，使用者重開會自動抓最新版 =====
+  var APP_VERSION = "2026-08-29-new-01";
+  (function ensureFresh() {
+    try {
+      var cur = new URLSearchParams(location.search).get('_v');
+      fetch(location.pathname + '?probe=' + Date.now(), { cache: 'no-store' })
+        .then(function (r) { return r.text(); })
+        .then(function (t) {
+          var m = t.match(/APP_VERSION\s*=\s*"([^"]+)"/);
+          if (!m) return;
+          var latest = m[1];
+          if (latest !== APP_VERSION && cur !== latest) {
+            var sep = location.href.indexOf('?') >= 0 ? '&' : '?';
+            location.replace(location.href + sep + '_v=' + encodeURIComponent(latest));
+          }
+        }).catch(function () {});
+    } catch (e) {}
+  })();
+
+  var P = getParams();
+  var me = { userId: '', displayName: '' };
+  var pos = { lat: null, lng: null };
+
+  function getParams() {
+    var p = new URLSearchParams(location.search);
+    var o = { site: p.get('site'), name: p.get('name'), mode: p.get('mode'), view: p.get('view') };
+    if (!o.site && !o.mode && !o.view && p.get('liff.state')) {
+      var st = new URLSearchParams(p.get('liff.state').replace(/^\?/, ''));
+      o = { site: st.get('site'), name: st.get('name'), mode: st.get('mode'), view: st.get('view') };
+    }
+    return { site: o.site || '', name: o.name || '', mode: o.mode || '', view: o.view || '' };
+  }
+  function esc(s) { return String(s == null ? '' : s).replace(/[<>&]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]; }); }
+  function post(body, _try) {
+    _try = _try || 1;
+    return fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.text(); })
+      .then(function (txt) {
+        var o = null; try { o = JSON.parse(txt); } catch (e) { o = null; }
+        if (o) return o;
+        throw new Error('bad-json');
+      })
+      .catch(function (e) {
+        if (_try < 3) return new Promise(function (res) { setTimeout(res, 600 * _try); }).then(function () { return post(body, _try + 1); });
+        throw new Error('伺服器忙碌或連線不穩，請再按一次');
+      });
+  }
+
+  /* ===== 底部分頁（純導覽：點了才載入該頁，不預載） ===== */
+  var ICON = {
+    punch: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21V13h6v8M4 10l8-6 8 6v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/></svg>',
+    makeup: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>',
+    transfer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h11l-2-2M20 17H9l2 2"/></svg>',
+    schedule: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>',
+    overview: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>'
+  };
+  function tabBar(active) {
+    function tab(v, label, svg) { return '<button class="t' + (active === v ? ' on' : '') + '" onclick="navView(\'' + v + '\')">' + svg + '<span>' + label + '</span></button>'; }
+    return '<div class="tabbar"><div class="tabinner">' +
+      tab('punch', '打卡', ICON.punch) + tab('makeup', '補打卡', ICON.makeup) +
+      tab('transfer', '調休', ICON.transfer) + tab('schedule', '班表', ICON.schedule) +
+      tab('overview', '概覽', ICON.overview) + '</div></div>';
+  }
+  function navView(v) {
+    var cur = P.view || 'punch';
+    if (v === cur) return;
+    location.href = location.pathname + (v === 'punch' ? '' : ('?view=' + v));
+  }
+
+  liff.init({ liffId: LIFF_ID }).then(function () {
+    if (!liff.isLoggedIn()) { liff.login(); return; }
+    return liff.getProfile();
+  }).then(function (p) {
+    if (!p) return;
+    me.userId = p.userId; me.displayName = p.displayName;
+    me.idToken = liff.getIDToken();
+    if (P.view === 'bind') { startBindPage(); return; }
+    if (P.view === 'overview' || P.view === 'admin') startOverview();
+    else if (P.view === 'makeup') startMakeup();
+    else if (P.view === 'transfer') startTransfer();
+    else if (P.view === 'schedule') startSchedule();
+    else startPunch();
+    post({ action: 'whoami', idToken: me.idToken }).then(function (w) {
+      if (w && w.ok && !w.bound) startBind(w);
+    }).catch(function () {});
+  }).catch(function (e) {
+    document.getElementById('boot').textContent = '初始化失敗：' + e;
+  });
+
+  var sitesData = [], sitesDone = false, gpsDone = false, userPicked = false, punchCtx = {};
+
+  /* ===== 綁定 ===== */
+  function startBindPage() {
+    document.getElementById('wrap').innerHTML = '<div class="card"><div class="sub">讀取中…</div></div>';
+    post({ action: 'whoami', idToken: me.idToken }).then(function (w) {
+      if (w && w.ok && w.bound) {
+        document.getElementById('wrap').innerHTML = '<div class="card"><h1>已完成綁定</h1>' +
+          '<div class="sub">你已綁定為 <b>' + esc(w.name) + '</b>，可直接使用打卡與各項功能。</div>' +
+          '<div class="btns"><button class="in" id="goPunch">前往打卡</button></div></div>';
+        var g = document.getElementById('goPunch'); if (g) g.onclick = startPunch;
+      } else if (w && w.ok) {
+        startBind(w);
+      } else {
+        document.getElementById('wrap').innerHTML = '<div class="card"><div class="gps err">讀取失敗，請關閉後重新開啟</div></div>';
+      }
+    }).catch(function (e) {
+      document.getElementById('wrap').innerHTML = '<div class="card"><div class="gps err">讀取失敗：' + esc(e) + '</div></div>';
+    });
+  }
+
+  function startBind(w) {
+    var opts = '';
+    (w.unbound || []).forEach(function (e) { opts += '<option value="' + esc(e.id) + '">' + esc(e.name + (e.dept ? '（' + e.dept + '）' : '')) + '</option>'; });
+    var html = '<div class="card"><h1>首次設定</h1>' +
+      '<div class="sub">歡迎 ' + esc(w.lineName) + '！請選擇你的姓名完成綁定，之後打卡就會自動認得你。</div>';
+    if (!opts) {
+      document.getElementById('wrap').innerHTML = html +
+        '<div class="gps err">名冊中查無可綁定的員工，請聯絡管理員把你加入「員工名冊」後再試。</div></div>';
+      return;
+    }
+    html += '<label>你的姓名</label><select id="bindSel">' + opts + '</select>' +
+      '<div class="btns"><button class="in" id="bindBtn">確認綁定</button></div>' +
+      '<div class="result" id="bindMsg"></div></div>';
+    document.getElementById('wrap').innerHTML = html;
+    document.getElementById('bindBtn').onclick = function () {
+      var empId = document.getElementById('bindSel').value;
+      document.getElementById('bindBtn').disabled = true;
+      post({ action: 'bind', idToken: me.idToken, empId: empId }).then(function (res) {
+        var m = document.getElementById('bindMsg');
+        if (!res || !res.ok) { document.getElementById('bindBtn').disabled = false; m.className = 'result show bad'; m.textContent = (res && res.msg) || '綁定失敗'; return; }
+        m.className = 'result show good'; m.textContent = '綁定成功：' + res.name + '，即將進入打卡…';
+        me.displayName = res.name;
+        setTimeout(startPunch, 1200);
+      }).catch(function (e) {
+        document.getElementById('bindBtn').disabled = false;
+        var m = document.getElementById('bindMsg'); m.className = 'result show bad'; m.textContent = '綁定失敗：' + e;
+      });
+    };
+  }
+
+  /* ===== 打卡 ===== */
+  function startClock() {
+    function tick() { var el = document.getElementById('clock'); if (!el) return; var n = new Date(); el.textContent = ('0' + n.getHours()).slice(-2) + ':' + ('0' + n.getMinutes()).slice(-2); }
+    tick(); if (window._clk) clearInterval(window._clk); window._clk = setInterval(tick, 15000);
+  }
+  function startPunch() {
+    var tpl = document.getElementById('punchTpl').content.cloneNode(true);
+    var w = document.getElementById('wrap'); w.innerHTML = ''; w.appendChild(tpl);
+    var h = new Date().getHours(), wk = ['日', '一', '二', '三', '四', '五', '六'], n = new Date();
+    document.getElementById('greet').textContent = (h < 12 ? '早安' : (h < 18 ? '午安' : '晚安')) + '，' + me.displayName + ' 👋';
+    document.getElementById('heroDate').textContent = (n.getMonth() + 1) + '月' + n.getDate() + '日　星期' + wk[n.getDay()] + ' · 啓宇營造出勤打卡';
+    startClock();
+    document.getElementById('siteSel').addEventListener('change', function () { userPicked = true; updateOther(); });
+    document.getElementById('btnIn').onclick = function () { punch('上班'); };
+    document.getElementById('btnOut').onclick = function () { punch('下班'); };
+    document.getElementById('btnOtIn').onclick = function () { punch('加班開始'); };
+    document.getElementById('btnOtOut').onclick = function () { punch('加班結束'); };
+    document.getElementById('relocBtn').onclick = function () { locate(); };
+    w.insertAdjacentHTML('beforeend', tabBar('punch'));
+    locate();
+    loadSites();
+  }
+
+  function loadSites() {
+    post({ action: 'sites' }).then(function (res) { sitesData = (res && res.sites) || []; sitesDone = true; buildOptions(); })
+      .catch(function () { sitesDone = true; buildOptions(); });
+  }
+  function jsDist(la1, ln1, la2, ln2) {
+    var R = 6371000, tr = Math.PI / 180;
+    var dLa = (la2 - la1) * tr, dLn = (ln2 - ln1) * tr;
+    var a = Math.sin(dLa / 2) * Math.sin(dLa / 2) + Math.cos(la1 * tr) * Math.cos(la2 * tr) * Math.sin(dLn / 2) * Math.sin(dLn / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+  function buildOptions() {
+    var sel = document.getElementById('siteSel');
+    if (!sel || !sitesDone) return;
+    var nearestIdx = -1, best = Infinity;
+    if (pos.lat != null) sitesData.forEach(function (s, i) {
+      s._d = jsDist(pos.lat, pos.lng, s.lat, s.lng); if (s._d < best) { best = s._d; nearestIdx = i; }
+    });
+    var prev = userPicked ? sel.value : null;
+    var html = '';
+    sitesData.forEach(function (s, i) {
+      var suffix = (i === nearestIdx) ? '（最近 ' + Math.round(s._d) + 'm）' : (s._d != null ? '（' + Math.round(s._d) + 'm）' : '');
+      html += '<option value="' + esc(s.name) + '">' + esc(s.name + suffix) + '</option>';
+    });
+    html += '<option value="__other__">其他（外勤，自行輸入）</option>';
+    sel.innerHTML = html;
+    if (prev) sel.value = prev;
+    else if (P.site) sel.value = P.site;
+    else if (nearestIdx >= 0) sel.selectedIndex = nearestIdx;
+    updateOther();
+    if (gpsDone) ready();
+  }
+  function updateOther() {
+    document.getElementById('otherWrap').style.display =
+      (document.getElementById('siteSel').value === '__other__') ? 'block' : 'none';
+  }
+  function findSiteByName(c) { for (var i = 0; i < sitesData.length; i++) if (sitesData[i].name === c) return sitesData[i]; return null; }
+  function setGps(txt, cls) { var el = document.getElementById('gps'); if (el) { el.textContent = txt; el.className = 'gps' + (cls ? ' ' + cls : ''); } }
+  function ready() { ['btnIn','btnOut','btnOtIn','btnOtOut'].forEach(function(id){ var b=document.getElementById(id); if(b)b.disabled=false; }); }
+  function geoErrMsg(err) {
+    var c = err && err.code;
+    if (c === 1) return '定位被拒（1）：請在 LINE 內允許此頁定位';        // PERMISSION_DENIED
+    if (c === 2) return '定位不到（2）：請到空曠處後按重新定位';          // POSITION_UNAVAILABLE
+    if (c === 3) return '定位逾時（3）：請按重新定位再試一次';            // TIMEOUT
+    return '未取得定位：請按重新定位';
+  }
+  function locate() {
+    if (!navigator.geolocation) { setGps('此裝置不支援定位，仍可打卡', 'err'); gpsDone = true; buildOptions(); return; }
+    setGps('定位中…');
+    function ok(r) { pos.lat = r.coords.latitude; pos.lng = r.coords.longitude; setGps('已定位', 'ok'); gpsDone = true; buildOptions(); }
+    // 先高精度；失敗/逾時 → 改用一般精度重試（較快，靠 Wi-Fi/基地台），仍失敗才報錯（顯示原因代碼）
+    navigator.geolocation.getCurrentPosition(ok, function () {
+      navigator.geolocation.getCurrentPosition(ok, function (err) {
+        setGps(geoErrMsg(err), 'err'); gpsDone = true; buildOptions();
+      }, { enableHighAccuracy: false, timeout: 15000, maximumAge: 60000 });
+    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+  }
+  function punch(type) {
+    var sel = document.getElementById('siteSel');
+    var isOther = (sel.value === '__other__');
+    var reason = isOther ? document.getElementById('otherReason').value.trim() : '';
+    if (isOther && !reason) { alert('請輸入地點／事由'); return; }
+    var note = document.getElementById('note').value.trim();
+    var site = '', siteName = '';
+    if (!isOther) { var s = findSiteByName(sel.value); site = s ? s.name : sel.value; siteName = s ? s.name : ''; }
+    punchCtx = { type: type, note: note };
+    ['btnIn','btnOut','btnOtIn','btnOtOut'].forEach(function(id){ var b=document.getElementById(id); if(b)b.disabled=true; });
+    post({ action: 'punch', idToken: me.idToken, userId: me.userId, displayName: me.displayName, mode: isOther ? 'field' : '', site: site, siteName: siteName,
+           punchType: type, lat: pos.lat, lng: pos.lng, reason: reason, note: note, device: navigator.platform + ' / LINE' })
+      .then(onDone).catch(function (e) { showResult(false, '送出失敗：' + e); ready(); });
+  }
+  function onDone(res) {
+    if (!res || !res.ok) { showResult(false, (res && res.msg) || '打卡失敗'); ready(); return; }
+    var okStatus = (res.status === '正常' || res.status === '待核准');
+    var t = '打卡成功　' + res.time;
+    if (res.status === '待核准') t = '外勤已送出，待主管核准';
+    else if (res.status !== '正常') t = '已記錄，定位異常（' + res.status + '）';
+    else if (res.distance !== '') t += '（距工地 ' + res.distance + ' 公尺）';
+    showResult(okStatus, t);
+    sendCard(res).then(function () { setTimeout(function () { if (window.liff && liff.closeWindow) liff.closeWindow(); }, 1500); });
+  }
+  function sendCard(res) {
+    try {
+      if (!liff.isInClient()) return Promise.resolve();
+      var ctx = liff.getContext();
+      if (!ctx || ctx.type === 'external' || ctx.type === 'none') return Promise.resolve();
+      return liff.sendMessages([buildFlex(res)]).catch(function () {});
+    } catch (e) { return Promise.resolve(); }
+  }
+  function buildFlex(res) {
+    var good = (res.status === '正常'), wait = (res.status === '待核准');
+    var isField = res.siteName && String(res.siteName).indexOf('外勤') === 0;
+    var color = good ? '#1d9e75' : (wait ? '#d97706' : '#b91c1c');
+    var title = good ? '✅ 打卡成功' : (wait ? (isField ? '⏳ 外勤待核准' : '⏳ 待核准（定位待確認）') : '⚠️ 打卡（定位異常）');
+    function line(k, v) {
+      return { type: 'box', layout: 'baseline', spacing: 'sm', contents: [
+        { type: 'text', text: k, size: 'sm', color: '#999999', flex: 2 },
+        { type: 'text', text: String(v == null || v === '' ? '-' : v), size: 'sm', color: '#333333', flex: 5, wrap: true }] };
+    }
+    var body = [
+      { type: 'text', text: title, weight: 'bold', size: 'lg', color: color },
+      { type: 'separator', margin: 'md' },
+      line('姓名', me.displayName), line('類型', punchCtx.type)];
+    if (res.empSiteName) body.push(line('工地別', res.empSiteName));
+    body.push(line('打卡地點', res.siteName), line('時間', res.time));
+    if (res.distance !== '' && res.distance != null) body.push(line('距離', res.distance + ' 公尺'));
+    if (punchCtx.note) body.push(line('備註', punchCtx.note));
+    return { type: 'flex', altText: title + ' ' + me.displayName,
+      contents: { type: 'bubble', size: 'kilo', body: { type: 'box', layout: 'vertical', spacing: 'sm', contents: body } } };
+  }
+  function showResult(good, txt) { var el = document.getElementById('result'); if (!el) return; el.textContent = txt; el.className = 'result show ' + (good ? 'good' : 'bad'); }
+
+  /* ===== 補打卡 ===== */
+  function startMakeup() {
+    var nowD = new Date();
+    var t = ('0' + nowD.getHours()).slice(-2) + ':' + ('0' + nowD.getMinutes()).slice(-2);
+    var today = nowD.getFullYear() + '-' + ('0' + (nowD.getMonth() + 1)).slice(-2) + '-' + ('0' + nowD.getDate()).slice(-2);
+    document.getElementById('wrap').innerHTML = '<div class="hdr"><h1>補打卡</h1><p>需直屬主管／工地負責人核准</p></div>' +
+      '<div class="pbody">' +
+      '<label class="lbl">類型</label><select id="mkType" class="fld"><option value="上班">上班補打</option><option value="下班">下班補打</option></select>' +
+      '<label class="lbl">日期</label><input type="date" id="mkDate" class="fld" value="' + today + '" max="' + today + '">' +
+      '<label class="lbl">時間</label><input type="time" id="mkTime" class="fld" value="' + t + '">' +
+      '<label class="lbl">補打原因（必填）</label><input id="mkReason" class="fld" placeholder="例：忘記打上班卡">' +
+      '<button class="primary" id="mkBtn">送出補打申請</button>' +
+      '<div class="miniwarn">送出後會通知主管，核准後才會生效。</div>' +
+      '<div class="result" id="result"></div></div>' + tabBar('makeup');
+    document.getElementById('mkBtn').onclick = makeup;
+  }
+  function makeup() {
+    var type = document.getElementById('mkType').value;
+    var date = document.getElementById('mkDate').value;
+    var time = document.getElementById('mkTime').value;
+    var reason = document.getElementById('mkReason').value.trim();
+    if (!date) { alert('請選補打日期'); return; }
+    if (!time) { alert('請選補打時間'); return; }
+    if (!reason) { alert('請填補打原因'); return; }
+    document.getElementById('mkBtn').disabled = true;
+    post({ action: 'makeup', idToken: me.idToken, punchType: type, makeupDate: date, makeupTime: time, reason: reason, device: navigator.platform + ' / LINE' })
+      .then(function (res) {
+        document.getElementById('mkBtn').disabled = false;
+        if (!res || !res.ok) { showResult(false, (res && res.msg) || '補打失敗'); return; }
+        showResult(true, '補打申請已送出（' + (res.date || date) + ' ' + type + '補打 ' + res.time + '），待主管核准');
+        sendFlexMsg(buildMakeupFlex(type, (res.date || date) + ' ' + res.time, reason)).then(function () { setTimeout(function () { if (window.liff && liff.closeWindow) liff.closeWindow(); }, 1600); });
+      }).catch(function (e) { document.getElementById('mkBtn').disabled = false; showResult(false, '送出失敗：' + e); });
+  }
+  function sendFlexMsg(flex) {
+    try {
+      if (!liff.isInClient()) return Promise.resolve();
+      var ctx = liff.getContext();
+      if (!ctx || ctx.type === 'external' || ctx.type === 'none') return Promise.resolve();
+      return liff.sendMessages([flex]).catch(function () {});
+    } catch (e) { return Promise.resolve(); }
+  }
+  function buildMakeupFlex(type, time, reason) {
+    function line(k, v) {
+      return { type: 'box', layout: 'baseline', spacing: 'sm', contents: [
+        { type: 'text', text: k, size: 'sm', color: '#999999', flex: 2 },
+        { type: 'text', text: String(v == null || v === '' ? '-' : v), size: 'sm', color: '#333333', flex: 5, wrap: true }] };
+    }
+    var body = [
+      { type: 'text', text: '📝 已申請補打卡', weight: 'bold', size: 'lg', color: '#d97706' },
+      { type: 'separator', margin: 'md' },
+      line('姓名', me.displayName), line('類型', type + '補打'), line('補打時間', time), line('原因', reason),
+      { type: 'text', text: '待主管審核後可成功登錄。', size: 'sm', color: '#d97706', margin: 'md', wrap: true }];
+    return { type: 'flex', altText: '已申請補打卡 ' + me.displayName,
+      contents: { type: 'bubble', size: 'kilo', body: { type: 'box', layout: 'vertical', spacing: 'sm', contents: body } } };
+  }
+
+  /* ===== 調休申請 ===== */
+  var tfState = { year: 0, month: 0, roster: {}, origAM: '', origPM: '' };
+  var TF_LV_OPTS = ['例假', '特休', '病假', '事假', '其他'];
+  function tfLvOptions() {
+    var h = '<option value="">不調</option>';
+    TF_LV_OPTS.forEach(function (o) { h += '<option value="' + o + '">' + o + '</option>'; });
+    return h;
+  }
+  function startTransfer() {
+    var d = new Date();
+    tfState.year = d.getFullYear(); tfState.month = d.getMonth() + 1;
+    document.getElementById('wrap').innerHTML = '<div class="hdr"><h1>調休申請</h1><p>原定休假日依班表自動帶入</p></div>' +
+      '<div class="pbody">' +
+      '<label class="lbl">原定休假月份</label><input type="month" id="tfYm" class="fld">' +
+      '<label class="lbl">原定休假日（僅顯示已排休）</label><select id="tfOrigDay" class="fld"><option value="">載入中…</option></select>' +
+      '<div class="gps ok" id="tfOrigInfo" style="display:none"></div>' +
+      '<label class="lbl">欲調休日期</label><input type="date" id="tfNewDate" class="fld">' +
+      '<label class="lbl">欲調假別</label>' +
+      '<div class="two"><div><span class="mini">上午</span><select id="tfNewAM" class="fld">' + tfLvOptions() + '</select></div>' +
+      '<div><span class="mini">下午</span><select id="tfNewPM" class="fld">' + tfLvOptions() + '</select></div></div>' +
+      '<label class="lbl">調休理由（選填）</label><input id="tfReason" class="fld" placeholder="例：家中臨時有事">' +
+      '<button class="primary" id="tfBtn" disabled>送出調休申請</button>' +
+      '<div class="result" id="result"></div></div>' + tabBar('transfer');
+    document.getElementById('tfYm').value = tfState.year + '-' + ('0' + tfState.month).slice(-2);
+    document.getElementById('tfYm').onchange = function () {
+      var v = this.value.split('-'); tfState.year = Number(v[0]); tfState.month = Number(v[1]); loadMyRoster();
+    };
+    document.getElementById('tfOrigDay').onchange = onOrigDayChange;
+    document.getElementById('tfBtn').onclick = submitTransfer;
+    loadMyRoster();
+  }
+  function loadMyRoster() {
+    var sel = document.getElementById('tfOrigDay');
+    sel.innerHTML = '<option value="">載入中…</option>';
+    document.getElementById('tfOrigInfo').style.display = 'none';
+    document.getElementById('tfBtn').disabled = true;
+    post({ action: 'myRoster', idToken: me.idToken, year: tfState.year, month: tfState.month })
+      .then(function (res) {
+        if (!res || !res.ok) { sel.innerHTML = '<option value="">' + esc((res && res.msg) || '讀取失敗') + '</option>'; return; }
+        tfState.roster = res.leaves || {};
+        var wk = ['日', '一', '二', '三', '四', '五', '六'];
+        var days = Object.keys(tfState.roster).map(Number).sort(function (a, b) { return a - b; });
+        if (!days.length) { sel.innerHTML = '<option value="">本月無排休可調</option>'; return; }
+        var h = '<option value="">請選擇…</option>';
+        days.forEach(function (dy) {
+          var lv = tfState.roster[dy] || {};
+          var dow = wk[new Date(tfState.year, tfState.month - 1, dy).getDay()];
+          var parts = [];
+          if (lv.am) parts.push('上午' + lv.am);
+          if (lv.pm) parts.push('下午' + lv.pm);
+          h += '<option value="' + dy + '">' + tfState.month + '/' + dy + '（' + dow + '）　' + parts.join('・') + '</option>';
+        });
+        sel.innerHTML = h;
+      })
+      .catch(function () { sel.innerHTML = '<option value="">讀取失敗</option>'; });
+  }
+  function onOrigDayChange() {
+    var day = Number(document.getElementById('tfOrigDay').value);
+    var info = document.getElementById('tfOrigInfo');
+    var btn = document.getElementById('tfBtn');
+    if (!day || !tfState.roster[day]) {
+      tfState.origAM = ''; tfState.origPM = ''; info.style.display = 'none'; btn.disabled = true; return;
+    }
+    var lv = tfState.roster[day];
+    tfState.origAM = lv.am || ''; tfState.origPM = lv.pm || '';
+    info.style.display = 'block';
+    info.textContent = '原定假別：上午 ' + (tfState.origAM || '—') + '　下午 ' + (tfState.origPM || '—');
+    document.getElementById('tfNewAM').value = tfState.origAM || '';
+    document.getElementById('tfNewPM').value = tfState.origPM || '';
+    btn.disabled = false;
+  }
+  function submitTransfer() {
+    var day = Number(document.getElementById('tfOrigDay').value);
+    if (!day) { alert('請選原定休假日'); return; }
+    var newDate = document.getElementById('tfNewDate').value;
+    if (!newDate) { alert('請選欲調休日期'); return; }
+    var newAM = document.getElementById('tfNewAM').value;
+    var newPM = document.getElementById('tfNewPM').value;
+    if (!newAM && !newPM) { alert('請至少設定欲調休日的上午或下午假別'); return; }
+    var reason = document.getElementById('tfReason').value.trim();
+    var origDate = tfState.year + '/' + ('0' + tfState.month).slice(-2) + '/' + ('0' + day).slice(-2);
+    var btn = document.getElementById('tfBtn'); btn.disabled = true;
+    post({ action: 'submitTransfer', idToken: me.idToken, origDate: origDate, newDate: newDate, newAM: newAM, newPM: newPM, reason: reason })
+      .then(function (res) {
+        btn.disabled = false;
+        if (!res || !res.ok) { showResult(false, (res && res.msg) || '送出失敗'); return; }
+        showResult(true, '調休申請已送出，待主管簽核');
+        sendFlexMsg(buildTransferFlex(res, reason)).then(function () { setTimeout(function () { if (window.liff && liff.closeWindow) liff.closeWindow(); }, 1600); });
+      })
+      .catch(function (e) { btn.disabled = false; showResult(false, '送出失敗：' + e); });
+  }
+  function buildTransferFlex(res, reason) {
+    function line(k, v) {
+      return { type: 'box', layout: 'baseline', spacing: 'sm', contents: [
+        { type: 'text', text: k, size: 'sm', color: '#999999', flex: 2 },
+        { type: 'text', text: String(v == null || v === '' ? '-' : v), size: 'sm', color: '#333333', flex: 5, wrap: true }] };
+    }
+    function md(s) { var p = String(s).split('/'); return p.length >= 3 ? (Number(p[1]) + '/' + Number(p[2])) : s; }
+    function slotTxt(am, pm) { return [am ? '上午' + am : '', pm ? '下午' + pm : ''].filter(Boolean).join('・') || '-'; }
+    var body = [
+      { type: 'text', text: '🔁 已申請調休', weight: 'bold', size: 'lg', color: '#2563eb' },
+      { type: 'separator', margin: 'md' },
+      line('姓名', me.displayName),
+      line('原定休假', md(res.origDate) + '（' + slotTxt(res.origAM, res.origPM) + '）'),
+      line('欲調至', md(res.newDate) + '（' + slotTxt(res.newAM, res.newPM) + '）')];
+    if (reason) body.push(line('理由', reason));
+    body.push({ type: 'text', text: '待主管簽核後才會生效。', size: 'sm', color: '#2563eb', margin: 'md', wrap: true });
+    return { type: 'flex', altText: '已申請調休 ' + me.displayName,
+      contents: { type: 'bubble', size: 'kilo', body: { type: 'box', layout: 'vertical', spacing: 'sm', contents: body } } };
+  }
+
+  /* ===== 班表（唯讀月曆：排休 + 會議/活動點點 + 國定假日） ===== */
+  var scState = { year: 0, month: 0 };
+  function shortLeave(am, pm) {
+    function c(x) { return x ? String(x).charAt(0) : ''; }
+    if (am && pm) return (am === pm) ? c(am) : ('上' + c(am) + '下' + c(pm));
+    if (am) return '上' + c(am);
+    if (pm) return '下' + c(pm);
+    return '';
+  }
+  function lvClass(t) {
+    if (!t) return ''; t = String(t);
+    if (t.indexOf('例') >= 0) return 'f-rest';
+    if (t.indexOf('特') >= 0) return 'f-year';
+    if (t.indexOf('病') >= 0) return 'f-sick';
+    if (t.indexOf('事') >= 0) return 'f-perso';
+    return 'f-other';
+  }
+  function specColor(t) { t = String(t); if (t.indexOf('工務') >= 0) return '#D8A828'; if (t.indexOf('職安') >= 0) return '#5AA02C'; return '#E07B39'; }
+  function startSchedule() {
+    var d = new Date(); scState.year = d.getFullYear(); scState.month = d.getMonth() + 1;
+    document.getElementById('wrap').innerHTML =
+      '<div class="hdr"><h1>我的班表</h1><p id="scWho">當月排休與行事曆</p></div>' +
+      '<div class="msel"><button class="ar" id="scPrev">‹</button><span id="scYm"></span><button class="ar" id="scNext">›</button></div>' +
+      '<div id="scBody"><div class="muted" style="text-align:center;padding:22px">載入中…</div></div>' + tabBar('schedule');
+    document.getElementById('scPrev').onclick = function () { scShift(-1); };
+    document.getElementById('scNext').onclick = function () { scShift(1); };
+    loadSchedule();
+  }
+  function scShift(n) {
+    var m = scState.month + n, y = scState.year;
+    if (m < 1) { m = 12; y--; } if (m > 12) { m = 1; y++; }
+    scState.year = y; scState.month = m; loadSchedule();
+  }
+  function loadSchedule() {
+    document.getElementById('scYm').textContent = scState.year + ' 年 ' + scState.month + ' 月';
+    document.getElementById('scBody').innerHTML = '<div class="muted" style="text-align:center;padding:22px">載入中…</div>';
+    post({ action: 'schedule', idToken: me.idToken, year: scState.year, month: scState.month })
+      .then(renderSchedule)
+      .catch(function (e) { document.getElementById('scBody').innerHTML = '<div class="muted" style="text-align:center;padding:22px">讀取失敗：' + esc(e) + '</div>'; });
+  }
+  function renderSchedule(res) {
+    var body = document.getElementById('scBody'); if (!body) return;
+    if (!res || !res.ok) { body.innerHTML = '<div class="muted" style="text-align:center;padding:22px">' + esc((res && res.msg) || '讀取失敗') + '</div>'; return; }
+    var who = document.getElementById('scWho'); if (who) who.textContent = esc(res.name) + ' · 當月排休與行事曆';
+    var y = res.year, m = res.month, leaves = res.leaves || {}, special = res.special || {}, holi = res.holidays || {};
+    var dim = new Date(y, m, 0).getDate(), first = new Date(y, m - 1, 1).getDay(), wk = ['日', '一', '二', '三', '四', '五', '六'];
+    var h = '<div class="cal"><div class="wk">';
+    for (var i = 0; i < 7; i++) h += '<span' + ((i === 0 || i === 6) ? ' class="we"' : '') + '>' + wk[i] + '</span>';
+    h += '</div><div class="grid">';
+    for (var e = 0; e < first; e++) h += '<div class="cell empty"></div>';
+    for (var d = 1; d <= dim; d++) {
+      var dow = new Date(y, m - 1, d).getDay();
+      var lv = leaves[d] || {}, code = shortLeave(lv.am, lv.pm), cls = lvClass(lv.am || lv.pm), isHoli = !!holi[d];
+      h += '<div class="cell' + ((dow === 0 || dow === 6) ? ' wend' : '') + (code ? (' has ' + cls) : '') + (isHoli ? ' holi' : '') + '">';
+      var dots = '';
+      if (special[d]) dots += '<i style="background:' + specColor(special[d]) + '"></i>';
+      if (isHoli) dots += '<i style="background:#D0452F"></i>';
+      if (dots) h += '<div class="pts">' + dots + '</div>';
+      h += '<span class="n">' + d + '</span>';
+      if (code) h += '<span class="lv">' + esc(code) + '</span>';
+      h += '</div>';
+    }
+    h += '</div></div>';
+    h += '<div class="legend"><div class="lg-row"><span class="lg-ttl">休假別</span>' +
+      '<span class="lg"><i class="sw" style="background:#0E7C66"></i>例</span>' +
+      '<span class="lg"><i class="sw" style="background:#2F7EA8"></i>特</span>' +
+      '<span class="lg"><i class="sw" style="background:#C58A2A"></i>病</span>' +
+      '<span class="lg"><i class="sw" style="background:#6A5AB0"></i>事</span></div>' +
+      '<div class="lg-row"><span class="lg-ttl">標記</span>' +
+      '<span class="lg"><i class="pt" style="background:#D8A828"></i>工務會議</span>' +
+      '<span class="lg"><i class="pt" style="background:#5AA02C"></i>職安會議</span>' +
+      '<span class="lg"><i class="pt" style="background:#E07B39"></i>公司活動</span>' +
+      '<span class="lg"><i class="pt" style="background:#D0452F"></i>國定假日</span></div></div>';
+    h += '<div class="snote">排休與會議由人資／負責人設定，國定假日自動帶入。異動請至「調休申請」。</div>';
+    body.innerHTML = h;
+  }
+
+  /* ===== 出勤概覽 ===== */
+  var ovDate = '', ovCur = '';   // ovDate=送給後端的查詢日('' 表今日)；ovCur=目前顯示日
+  function ovShift(n) {
+    var p = ovCur.split('/'); var dt = new Date(+p[0], +p[1] - 1, +p[2]); dt.setDate(dt.getDate() + n);
+    ovDate = dt.getFullYear() + '/' + ('0' + (dt.getMonth() + 1)).slice(-2) + '/' + ('0' + dt.getDate()).slice(-2);
+    startOverview();
+  }
+  function ovToday() { ovDate = ''; startOverview(); }
+  function ovPick(v) { if (!v) return; ovDate = v.replace(/-/g, '/'); startOverview(); }
+  function ovDatebar(d) {
+    var wk = ['日', '一', '二', '三', '四', '五', '六'];
+    var p = String(d.date).split('/'); var dow = wk[new Date(+p[0], +p[1] - 1, +p[2]).getDay()];
+    var iso = p[0] + '-' + p[1] + '-' + p[2];
+    var isToday = (d.date === d.today);
+    return '<div class="datebar"><button class="dbtn" onclick="ovShift(-1)">‹</button>' +
+      '<label class="dpick"><input type="date" value="' + iso + '" onchange="ovPick(this.value)">' +
+      '<span class="dcap">' + esc(d.date) + '（' + dow + '）' + (isToday ? ' · 今日' : '') + ' ▾</span></label>' +
+      '<button class="dbtn" onclick="ovShift(1)">›</button>' +
+      (isToday ? '' : '<button class="dtoday" onclick="ovToday()">回今日</button>') + '</div>';
+  }
+  function startOverview() {
+    document.getElementById('wrap').innerHTML = '<div class="card"><div class="sub">載入出勤概覽…</div></div>';
+    post({ action: 'overview', idToken: me.idToken, date: ovDate }).then(renderOverview)
+      .catch(function (e) { document.getElementById('wrap').innerHTML = '<div class="card">讀取失敗：' + esc(e) + '</div>'; });
+  }
+  function ovMd(s) { var p = String(s).split('/'); return p.length >= 3 ? (Number(p[1]) + '/' + Number(p[2])) : s; }
+  function ovSlot(am, pm) { return [am ? '上午' + am : '', pm ? '下午' + pm : ''].filter(Boolean).join('・') || '-'; }
+  function ovTag(status) {
+    var cls = (status === '已核准') ? 'ok' : ((status === '已退回' || status === '已取消') ? 'bad' : 'wait');
+    return '<span class="tag ' + cls + '">' + esc(status) + '</span>';
+  }
+  function ovMy(m) {
+    if (!m) return '<div class="muted">—</div>';
+    if (m.leave) return '<div class="myleave"><small>今日</small>' + esc(m.leave) + '</div>';
+    return '<div class="myday">' +
+      '<div class="cell' + (m.in ? '' : ' miss') + '"><span>上班</span><b>' + esc(m.in || '未打卡') + '</b></div>' +
+      '<div class="cell"><span>下班</span><b>' + esc(m.out || '—') + '</b></div>' +
+      '</div>';
+  }
+  function ovActions(kind, id, canAct) {
+    if (!canAct) return '';
+    return '<div class="pbtns"><button class="approve" data-k="' + kind + '" data-id="' + esc(id) + '" data-d="approve">核准</button>' +
+           '<button class="reject" data-k="' + kind + '" data-id="' + esc(id) + '" data-d="reject">退回</button></div>';
+  }
+  function ovTfCard(x) {
+    var line = ovMd(x.orig) + '（' + ovSlot(x.origAM, x.origPM) + '）→ ' + ovMd(x.neu) + '（' + ovSlot(x.newAM, x.newPM) + '）';
+    return '<div class="arow' + (x.canAct ? ' pend' : '') + '"><div class="row"><b>' + esc(x.name) + (x.mine ? '（我）' : '') + '</b>' + ovTag(x.status) + '</div>' +
+      '<div class="muted">' + esc(line) + '</div>' +
+      (x.reason ? '<div class="muted">理由：' + esc(x.reason) + '</div>' : '') +
+      ovActions('transfer', x.id, x.canAct) + '</div>';
+  }
+  function ovPnCard(x, kind) {
+    var typeTxt = (kind === 'field') ? '（外勤）' : '（補打）';
+    return '<div class="arow' + (x.canAct ? ' pend' : '') + '"><div class="row"><b>' + esc(x.name) + (x.mine ? '（我）' : '') + '</b>' + ovTag(x.status) + '</div>' +
+      '<div class="muted">' + esc(x.date + ' ' + x.time + '　' + x.punchType) + typeTxt + '</div>' +
+      (x.reason ? '<div class="muted">事由：' + esc(x.reason) + '</div>' : '') +
+      ovActions('punch', x.recordId, x.canAct) + '</div>';
+  }
+  function ovSection(title, kind, list) {
+    list = list || [];
+    var actCount = list.filter(function (x) { return x.canAct; }).length;
+    var h = '<h2>' + esc(title) + (actCount ? ' <span class="tag wait">待簽核 ' + actCount + '</span>' : '') + '</h2>';
+    if (!list.length) return h + '<div class="empty">目前沒有資料</div>';
+    list.forEach(function (x) { h += (kind === 'transfer') ? ovTfCard(x) : ovPnCard(x, kind); });
+    return h;
+  }
+  function renderOverview(d) {
+    var w = document.getElementById('wrap');
+    if (!d || !d.ok) { w.innerHTML = '<div class="card">讀取失敗</div>'; return; }
+    if (!d.bound) { w.innerHTML = '<div class="card"><h1>尚未綁定</h1><p class="muted">請先從打卡頁完成綁定後再使用。</p></div>' + tabBar('overview'); return; }
+
+    ovCur = d.date;
+    var html = '<h1>出勤概覽</h1><div class="date">' + esc(d.name) + '（' + esc(d.role) + '）</div>' + ovDatebar(d);
+    html += '<div class="card" style="margin-bottom:14px"><div class="myday-title">' + (d.date === d.today ? '我的今日出勤' : '我的當日出勤') + '</div>' + ovMy(d.me) + '</div>';
+
+    if (d.sites && d.sites.length) {
+      html += '<h2>負責工地出勤</h2><select id="ovSiteFilter"><option value="__all__">全部工地</option>';
+      d.sites.forEach(function (g) { html += '<option value="' + esc(g.site) + '">' + esc(g.site) + '</option>'; });
+      html += '</select>';
+      d.sites.forEach(function (g) {
+        html += '<div class="sitegrp" data-site="' + esc(g.site) + '"><h3>📍 ' + esc(g.site) + '</h3>' +
+          '<table class="att"><tr><th>姓名</th><th>上班</th><th>下班</th></tr>';
+        g.people.forEach(function (pp) {
+          if (pp.leave) { html += '<tr><td class="nm">' + esc(pp.name) + '</td><td colspan="2" style="color:#0a7d55;font-weight:600">' + esc(pp.leave) + '</td></tr>'; return; }
+          var miss = pp.in ? '' : ' class="miss"';
+          html += '<tr' + miss + '><td class="nm">' + esc(pp.name) + '</td><td>' + esc(pp.in || '—') + '</td><td>' + esc(pp.out || '—') + '</td></tr>';
+        });
+        html += '</table></div>';
+      });
+    }
+
+    html += ovSection('調休申請', 'transfer', d.apps.transfer);
+    html += ovSection('補打卡申請', 'makeup', d.apps.makeup);
+    html += ovSection('外勤申請', 'field', d.apps.field);
+    html += '<button class="refresh" id="ovRefresh">↻ 重新整理</button>';
+    html += tabBar('overview');
+    w.innerHTML = html;
+
+    document.getElementById('ovRefresh').onclick = startOverview;
+    var sf = document.getElementById('ovSiteFilter');
+    if (sf) sf.onchange = function () {
+      var v = sf.value;
+      Array.prototype.forEach.call(document.querySelectorAll('.sitegrp'), function (el) {
+        el.style.display = (v === '__all__' || el.getAttribute('data-site') === v) ? '' : 'none';
+      });
+    };
+    Array.prototype.forEach.call(document.querySelectorAll('.pbtns button'), function (b) {
+      b.onclick = function () { ovAct(b.getAttribute('data-k'), b.getAttribute('data-id'), b.getAttribute('data-d'), b); };
+    });
+  }
+  function ovAct(kind, id, decision, btn) {
+    var box = btn.parentNode;
+    Array.prototype.forEach.call(box.querySelectorAll('button'), function (x) { x.disabled = true; });
+    var body = (kind === 'transfer')
+      ? { action: 'actTransfer', idToken: me.idToken, id: id, decision: decision }
+      : { action: 'approve', idToken: me.idToken, recordId: id, decision: decision };
+    post(body).then(function (res) {
+      if (!res || !res.ok) {
+        alert('操作失敗：' + ((res && res.msg) || ''));
+        Array.prototype.forEach.call(box.querySelectorAll('button'), function (x) { x.disabled = false; });
+        return;
+      }
+      startOverview();
+    }).catch(function (e) { alert('操作失敗：' + e); startOverview(); });
+  }
+</script>
+</body>
+</html>
