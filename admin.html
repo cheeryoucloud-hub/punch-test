@@ -233,23 +233,37 @@
     .rpt-notes{ font-size:8.5px; } @page{ size:A4 portrait; margin:8mm; }
   }
   /* 調休申請(參考圖版面) */
-  .tfsteps{ display:flex; align-items:center; gap:10px; font-size:12px; color:var(--muted); font-weight:700; }
-  .tfsteps .st{ display:flex; align-items:center; gap:6px; }
-  .tfsteps .n{ width:20px; height:20px; border-radius:50%; background:var(--brand); color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; }
+  .tfsteps{ display:flex; align-items:center; gap:10px; font-size:12.5px; color:var(--ink); font-weight:700; justify-content:flex-end; }
+  .tfsteps .st{ display:flex; align-items:center; gap:7px; white-space:nowrap; }
+  .tfsteps .st.dim{ color:var(--muted); }
+  .tfsteps .n{ width:21px; height:21px; border-radius:50%; background:var(--brand); color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; }
   .tfsteps .st.dim .n{ background:var(--surface-2); color:var(--muted); border:1px solid var(--line); }
-  .tfsteps .ln{ flex:1; height:1px; background:var(--line); min-width:26px; }
-  .tfcards{ display:grid; grid-template-columns:1fr 40px 1fr; gap:10px; align-items:stretch; margin-top:14px; }
-  .tfcard{ border:1px solid var(--line); border-radius:14px; padding:13px 14px; }
-  .tfcard .cap{ font-weight:800; font-size:13.5px; margin-bottom:9px; }
-  .tfcard .cap .auto{ font-size:10px; font-weight:800; color:var(--brand-ink); background:var(--brand-soft); border-radius:8px; padding:2px 7px; margin-left:6px; }
-  .tfcard input[type=date]{ width:100%; padding:9px 11px; border:1px solid var(--line); border-radius:10px; background:var(--surface); color:var(--ink); font-size:13.5px; font-family:inherit; }
-  .tfhalf{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:9px; }
-  .tfslot{ background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:7px 10px; }
-  .tfslot .sl{ font-size:10.5px; color:var(--muted); font-weight:700; display:flex; justify-content:space-between; }
-  .tfslot .sl .auto{ font-size:9.5px; color:var(--brand-ink); background:var(--brand-soft); border-radius:6px; padding:0 5px; }
-  .tfslot b{ font-size:13.5px; }
-  .tfslot select{ width:100%; border:none; background:transparent; font-size:13.5px; font-weight:700; color:var(--ink); font-family:inherit; padding:2px 0; }
-  .tfarrow{ display:flex; align-items:center; justify-content:center; color:var(--brand); font-size:22px; font-weight:800; }
+  .tfsteps .ln{ width:64px; height:1px; background:var(--line); }
+  .tfcards{ display:grid; grid-template-columns:1fr 44px 1fr; gap:10px; align-items:stretch; margin-top:14px; }
+  .tfcard{ border:1px solid var(--line); border-radius:14px; padding:14px 16px; background:var(--surface); }
+  .tfcard .cap{ font-weight:800; font-size:14px; margin-bottom:10px; }
+  .tfcard .cap .auto{ font-size:10.5px; font-weight:800; color:var(--brand-ink); background:var(--brand-soft); border-radius:8px; padding:2px 8px; margin-left:6px; }
+  .tfcard input[type=date]{ width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:var(--surface); color:var(--ink); font-size:14px; font-family:inherit; }
+  .tfhalf{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
+  .tfslot{ background:var(--brand-soft); border:1px solid transparent; border-radius:10px; padding:8px 12px; }
+  .tfslot .sl{ font-size:11px; color:var(--muted); font-weight:700; display:flex; justify-content:space-between; align-items:center; gap:6px; }
+  .tfslot .sl .auto{ font-size:10px; color:var(--brand-ink); background:rgba(255,255,255,.7); border-radius:6px; padding:1px 6px; font-weight:800; }
+  .tfslot b{ font-size:14.5px; display:block; margin-top:2px; }
+  .tfslot select{ width:100%; border:none; background:transparent; font-size:14px; font-weight:800; color:var(--ink); font-family:inherit; padding:3px 0 0; }
+  .tfarrow{ display:flex; align-items:center; justify-content:center; color:var(--brand); font-size:24px; font-weight:800; }
+  /* 申請紀錄卡（參考圖：左資訊、右核准狀態） */
+  .tfrow{ display:grid; grid-template-columns:130px 26px 130px minmax(140px,1fr) 300px; gap:12px; align-items:start; margin-top:8px; }
+  @media(max-width:1150px){ .tfrow{ grid-template-columns:130px 26px 130px 1fr; } .tfrow>div:nth-child(5){ grid-column:1/-1; } }
+  .cap7{ font-size:11px; color:var(--muted); font-weight:700; margin-bottom:3px; }
+  .dch .d1{ font-size:13.5px; font-weight:800; } .dch .d2{ font-size:12.5px; margin-top:2px; line-height:1.5; }
+  .rsn{ font-size:13.5px; font-weight:700; }
+  .signrow2{ display:flex; gap:8px; }
+  .sg{ flex:1; background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:7px 8px; text-align:center; }
+  .sg.okd{ background:var(--brand-soft); border-color:transparent; }
+  .sg .r7{ font-size:10.5px; color:var(--muted); font-weight:700; }
+  .sg .w7{ font-weight:800; font-size:13px; margin-top:1px; }
+  .sg.okd .w7{ color:var(--brand-ink); }
+  @media(max-width:900px){ .tfrow{ grid-template-columns:1fr 26px 1fr; } .tfrow>div:nth-child(4),.tfrow>div:nth-child(5){ grid-column:1/-1; } }
   .tfstat{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
   .tfstat .tc{ font-size:12px; font-weight:800; border-radius:20px; padding:4px 12px; cursor:pointer; background:var(--surface-2); color:var(--muted); border:1px solid var(--line); }
   .tfstat .tc.on{ background:var(--brand-soft); color:var(--brand-ink); border-color:transparent; }
@@ -479,9 +493,9 @@ function scTransfer(){
   TF_FILTER='';
   $('main').innerHTML=pageTop('調休申請',false)+
     '<div class="hint" style="margin:-8px 0 12px">申請將原休假時段調整至其他日期,需經主管核准後方生效。</div>'+
-    '<div class="panel"><div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:4px"><b>新增調休申請</b>'+
-    '<div class="tfsteps" style="flex:1;min-width:280px"><span class="st"><span class="n">1</span>選擇員工與日期</span><span class="ln"></span><span class="st dim"><span class="n">2</span>確認休假時段</span><span class="ln"></span><span class="st dim"><span class="n">3</span>送出審核</span></div></div>'+
-    '<div class="field" style="max-width:320px;margin-top:10px"><label class="hint" style="display:block;margin-bottom:5px">員工</label><select id="tfEmp" style="width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font-family:inherit"><option value="">選擇員工…</option></select></div>'+
+    '<div class="panel"><div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:4px"><b style="font-size:15px">新增調休申請</b>'+
+    '<div class="tfsteps" style="flex:1;min-width:300px"><span class="st"><span class="n">1</span>選擇員工與日期</span><span class="ln"></span><span class="st dim"><span class="n">2</span>確認休假時段</span><span class="ln"></span><span class="st dim"><span class="n">3</span>送出審核</span></div></div>'+
+    '<div class="field" style="max-width:340px;margin-top:10px"><label class="hint" style="display:block;margin-bottom:5px">員工</label><select id="tfEmp" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font-family:inherit;font-size:14px"><option value="">選擇員工…</option></select></div>'+
     '<div class="tfcards">'+
       '<div class="tfcard"><div class="cap">原休假<span class="auto">系統自動帶入</span></div>'+
         '<input type="date" id="tfOrig">'+
@@ -497,10 +511,13 @@ function scTransfer(){
           '<div class="tfslot"><div class="sl">下午假別</div>'+tfLvSel('tfNPM')+'</div>'+
         '</div></div>'+
     '</div>'+
-    '<div class="field" style="margin-top:12px"><label class="hint" style="display:block;margin-bottom:5px">理由</label><input id="tfReason" maxlength="100" placeholder="請說明調休原因（例：配合灌漿時間）" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font-family:inherit"></div>'+
-    '<div style="text-align:right;margin-top:12px"><button class="add" id="tfSubmit" onclick="submitTf()">送出申請</button></div></div>'+
-    '<div class="toolbar"><b>申請紀錄</b><span class="tfstat" id="tfStat"></span><span class="spacer"></span>'+mstep()+
-      '<select id="tfSite"><option value="__all__">全部工地</option></select></div>'+
+    '<div class="field" style="margin-top:14px"><label class="hint" style="display:block;margin-bottom:5px">理由</label>'+
+      '<div style="position:relative"><input id="tfReason" maxlength="100" oninput="var c=$(\'tfCnt\'); if(c)c.textContent=this.value.length+\' / 100\'" placeholder="請說明調休原因（例：配合灌漿時間）" style="width:100%;padding:10px 84px 10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font-family:inherit;font-size:14px">'+
+      '<span id="tfCnt" class="hint" style="position:absolute;right:12px;top:50%;transform:translateY(-50%)">0 / 100</span></div></div>'+
+    '<div style="text-align:right;margin-top:12px"><button class="add" id="tfSubmit" onclick="submitTf()" style="padding:10px 26px;font-size:14px">送出申請</button></div></div>'+
+    '<div class="toolbar"><b style="font-size:15px">申請紀錄</b><span class="tfstat" id="tfStat"></span><span class="spacer"></span>'+mstep()+
+      '<select id="tfSite"><option value="__all__">全部工地</option></select>'+
+      '<select id="tfStatusSel" onchange="tfFilter(this.value)"><option value="">全部狀態</option><option value="待核准">待審核</option><option value="已核准">已核准</option><option value="已退回">已退回</option></select></div>'+
     '<div id="trBody"><div class="spin">載入中…</div></div>';
   api('admin_empList',{}).then(function(j){ if(!j.ok)return; var sel=$('tfEmp'); if(sel) sel.innerHTML='<option value="">選擇員工…</option>'+j.list.map(function(e){return '<option value="'+esc(e.empId)+'">'+esc(e.name)+'（'+esc(e.site||'—')+'）</option>';}).join('');
     var st={}; j.list.forEach(function(e){ if(e.site)st[e.site]=1; }); if($('tfSite')) $('tfSite').innerHTML='<option value="__all__">全部工地</option>'+Object.keys(st).map(function(s){return '<option>'+esc(s)+'</option>';}).join(''); });
@@ -545,23 +562,26 @@ function loadTransfer(){
     if(!list.length){ b.innerHTML='<div class="panel empty">本期沒有符合條件的調休申請</div>'; return; }
     var wk=['日','一','二','三','四','五','六'];
     function dchip(ds,am,pm){ var p=String(ds).split('/'); var w=p.length>=3?wk[new Date(+p[0],+p[1]-1,+p[2]).getDay()]:'';
-      return '<div class="hint" style="font-weight:700">📅 '+p[1]+'/'+p[2]+'（'+w+'）</div><div class="small" style="font-size:12px">上午：'+esc(am||'—')+'<br>下午：'+esc(pm||'—')+'</div>'; }
+      return '<div class="dch"><div class="d1">📅 '+p[1]+'/'+p[2]+'（'+w+'）</div><div class="d2">上午：'+esc(am||'—')+'<br>下午：'+esc(pm||'—')+'</div></div>'; }
+    function sg(role,who){ return '<div class="sg'+(who?' okd':'')+'"><div class="r7">'+role+'</div><div class="w7">'+(who?(esc(who)+' ✓'):'<span class="muted" style="font-weight:600">待簽核</span>')+'</div></div>'; }
     var h='';
     list.forEach(function(t){
       var stp=t.status==='已核准'?'<span class="pill ok">已核准</span>':(t.status==='已退回'?'<span class="pill bad">已退回</span>':'<span class="pill wait">待審核</span>');
       h+='<div class="tf'+(t.canAct?' act':'')+'">'+
         '<div class="tf-h"><b>'+esc(t.name)+' <span class="muted" style="font-weight:600;font-size:13px">'+esc(t.site)+'</span></b>'+stp+'</div>'+
-        '<div style="display:grid;grid-template-columns:1fr 30px 1fr 1.2fr;gap:8px;align-items:center;margin-top:6px">'+
-          '<div><div class="hint">原休假</div>'+dchip(t.orig,t.origAM,t.origPM)+'</div>'+
-          '<div class="tfarrow" style="font-size:17px">→</div>'+
-          '<div><div class="hint">調整後</div>'+dchip(t.neu,t.newAM,t.newPM)+'</div>'+
-          '<div><div class="hint">理由</div><div style="font-size:13px;font-weight:600">'+esc(t.reason||'—')+'</div></div>'+
+        '<div class="tfrow">'+
+          '<div><div class="cap7">原休假</div>'+dchip(t.orig,t.origAM,t.origPM)+'</div>'+
+          '<div class="tfarrow" style="font-size:18px;padding-top:16px">→</div>'+
+          '<div><div class="cap7">調整後</div>'+dchip(t.neu,t.newAM,t.newPM)+'</div>'+
+          '<div><div class="cap7">理由</div><div class="rsn">'+esc(t.reason||'—')+'</div></div>'+
+          '<div><div class="cap7" style="text-align:center">核准狀態</div><div class="signrow2">'+sg('工地負責人',t.boss)+sg('工地主管',t.mgr)+'</div>'+
+          (t.canAct?'<div class="signrow2" style="margin-top:8px"><button class="btn ap sm" style="flex:1" onclick="actTr(\''+esc(t.id)+'\',\'approve\')">核准</button><button class="btn rj sm" style="flex:1" onclick="actTr(\''+esc(t.id)+'\',\'reject\')">退回</button></div>':'')+
+          '</div>'+
         '</div>'+
-        '<div class="signrow">'+signbox('工地負責人',t.boss)+signbox('工地主管',t.mgr)+'</div>'+
-        (t.canAct?'<div class="signrow" style="margin-top:10px"><button class="btn ap sm" style="flex:1" onclick="actTr(\''+esc(t.id)+'\',\'approve\')">核准（'+esc(t.status)+'）</button><button class="btn rj sm" style="flex:1" onclick="actTr(\''+esc(t.id)+'\',\'reject\')">退回</button></div>':'')+
         '</div>';
     });
     b.innerHTML=h;
+    var ss2=$('tfStatusSel'); if(ss2) ss2.value=TF_FILTER;
   });
 }
 function signbox(role,who){ if(who) return '<div class="sign signed"><div class="role">'+role+'</div><div class="who">'+esc(who)+' ✓</div></div>';
@@ -581,10 +601,12 @@ function lvSym(am,pm){
 var SPCLS={'工務會議':'sp-y','職安會議':'sp-g','特殊活動':'sp-o','公司活動':'sp-o'};
 var ROSTER_DATA=null, ROSTER_CHANGES={}, SPECIAL_CHANGES={}, EDIT_MODE=false, RSCREEN='leave';
 function symOf(am,pm){ return lvSym(am,pm); }
-function rmLegend(){
-  return '<div class="rmlegend">符號：<b>●</b> 例假　<b>特</b> 特休　<b>事</b> 事假　<b>病</b> 病假　<b>婚</b> 婚假　<b>喪</b> 喪假　<b>公</b> 公假　<b>國</b> 國定　｜　'+
-    '<span class="lg-plan">灰＝預定</span>　<span class="lg-adj">紅＝人資調整</span>　<span><span class="sw" style="background:#00B0F0"></span>藍底＝調休(滑過看原因)</span>　<span class="lg-cancel">○＝取消</span>'+
-    '<br style="line-height:2.2">特殊日：<span><span class="sw" style="background:#FFFF00"></span>工務會議</span>　<span><span class="sw" style="background:#92D050"></span>職安會議</span>　<span><span class="sw" style="background:#FFC000"></span>特殊活動</span></div>';
+function rmLegend(isDraft){
+  var syms='符號：<b>●</b> 例假　<b>特</b> 特休　<b>事</b> 事假　<b>病</b> 病假　<b>婚</b> 婚假　<b>喪</b> 喪假　<b>公</b> 公假　<b>國</b> 國定';
+  var sp='特殊日：<span><span class="sw" style="background:#FFFF00"></span>工務會議</span>　<span><span class="sw" style="background:#92D050"></span>職安會議</span>　<span><span class="sw" style="background:#FFC000"></span>特殊活動</span>';
+  if(isDraft) return '<div class="rmlegend">'+syms+'　｜　'+sp+'</div>';   // 休假登錄=預定草稿,無來源顏色
+  return '<div class="rmlegend">'+syms+'　｜　<span class="lg-plan">灰＝預定</span>　<span class="lg-adj">紅＝人資調整</span>　<span><span class="sw" style="background:#00B0F0"></span>藍底＝調休(滑過看原因)</span>　<span class="lg-cancel">○＝取消</span>'+
+    '<br style="line-height:2.2">'+sp+'</div>';
 }
 /* 浮動提示（調休原因；藍格與取消○皆可）*/
 (function(){ var tip; document.addEventListener('mouseover',function(e){ var td=e.target.closest&&e.target.closest('td[data-tip]'); if(!td)return;
@@ -709,7 +731,7 @@ function renderRosterScreen(){
   } else tb+='<span class="spacer"></span>'+(isLeave?'<span class="hint">主管唯讀,排休由人資登錄</span>':'<button class="btn" onclick="exportRosterExcel()">匯出 Excel</button><button class="btn" onclick="window.print()">列印</button>');
   $('rToolbar').innerHTML=tb;
   var host=$('rHost'); host.className=(canEdit&&EDIT_MODE)?'editing':'';
-  host.innerHTML=rosterHtml(j)+rmLegend();
+  host.innerHTML=rosterHtml(j)+rmLegend(isLeave);
   $('rNote').innerHTML=noteBox(j.note, canEdit&&EDIT_MODE);
   if(isLeave&&$('rPeriod')) renderPeriod($('rPeriod'), j.period, isHR()&&!j.locked);
   bindRosterClicks();
@@ -721,7 +743,7 @@ function saveRoster(){
   var specials=Object.keys(SPECIAL_CHANGES).map(function(k){return {day:Number(k),type:SPECIAL_CHANGES[k]};});
   var noteEl=$('rosterNotes'); var note=noteEl?noteEl.value:undefined;
   if(!changes.length&&!specials.length&&note===undefined){ alert('沒有變更'); return; }
-  api('admin_saveRosterBatch',{year:yy(),month:mm(),changes:changes,specials:specials,note:note}).then(function(j){
+  api('admin_saveRosterBatch',{year:yy(),month:mm(),mode:(RSCREEN==='leave'?'draft':'actual'),changes:changes,specials:specials,note:note}).then(function(j){
     if(!j.ok){ alert(j.msg||'儲存失敗'); return; } EDIT_MODE=false; loadRosterScreen();
   });
 }
@@ -773,14 +795,23 @@ var RPT_EDIT=false, RPT_LAST=null;
 function scReport(){
   RPT_EDIT=false; RPTCHG={};
   $('main').innerHTML=pageTop('出勤表',false)+
-    '<div class="toolbar noprint">'+mstep()+'<select id="rpEmp"><option>載入中…</option></select><span class="spacer"></span>'+
+    '<div class="toolbar noprint">'+mstep()+
+    '<select id="rpSite" onchange="rpFillEmp()"><option value="__all__">全部工地</option></select>'+
+    '<select id="rpEmp"><option>載入中…</option></select><span class="spacer"></span>'+
     '<button class="add" onclick="loadReport()">產生</button>'+
     '<span id="rpTools"></span></div>'+
     '<div class="panel" id="rpBody"><div class="empty">選擇員工與月份後按「產生」</div></div>';
   api('admin_empList',{needPunchOnly:true}).then(function(j){
-    var sel=$('rpEmp'); if(!j.ok||!j.list.length){ sel.innerHTML='<option value="">（無可選員工）</option>'; return; }
-    sel.innerHTML=j.list.map(function(e){return '<option value="'+esc(e.empId)+'">'+esc(e.name)+'（'+esc(e.site||'—')+'）</option>';}).join('');
+    if(!j.ok||!j.list.length){ $('rpEmp').innerHTML='<option value="">（無可選員工）</option>'; return; }
+    state.rpEmps=j.list;
+    var st={}; j.list.forEach(function(e){ if(e.site)st[e.site]=1; });
+    $('rpSite').innerHTML='<option value="__all__">全部工地</option>'+Object.keys(st).map(function(s){return '<option>'+esc(s)+'</option>';}).join('');
+    rpFillEmp();
   });
+}
+function rpFillEmp(){
+  var site=$('rpSite')?$('rpSite').value:'__all__'; var list=(state.rpEmps||[]).filter(function(e){ return site==='__all__'||e.site===site; });
+  $('rpEmp').innerHTML=list.length?list.map(function(e){return '<option value="'+esc(e.empId)+'">'+esc(e.name)+'（'+esc(e.site||'—')+'）</option>';}).join(''):'<option value="">（此工地無員工）</option>';
 }
 function rptTools(canEdit){
   var h='';
