@@ -581,26 +581,31 @@ function rosterMatrix(data,editable){
 var DRAFT=null, RCHANGES={}, SPCHANGES={};
 var LEAVE_OPTS=['','例假','特休','事假','喪假','病假','婚假','育嬰假','公假','國定'];
 var ROSTER_CYCLE=['','例假','特休'], SP_CYCLE=['','工務會議','職安會議','特殊活動'];
+var EDITMODE=false;
 function scLeave(){
-  var edit=isHR(); RCHANGES={}; SPCHANGES={};
+  var edit=isHR(); if(!edit)EDITMODE=false; RCHANGES={}; SPCHANGES={};
+  var tools;
+  if(edit&&EDITMODE) tools='<span class="hint">編輯中：點格循環·右鍵詳細·右鍵人名快速輸入·點日期表頭設特殊日</span><span class="spacer"></span><button class="btn" onclick="leaveEdit(false)">取消</button><button class="add" id="lvSaveBtn" onclick="saveDraft()">儲存輪休表</button>';
+  else if(edit) tools='<span class="spacer"></span><button class="add" onclick="leaveEdit(true)">✎ 編輯</button>';
+  else tools='<span class="spacer"></span><span class="hint">主管唯讀,排休由人資登錄</span>';
   $('main').innerHTML=pageTop('休假登錄',!edit)+'<div id="lvTop"></div>'+
-    '<div class="toolbar">'+mstep()+
-    (edit?'<span class="hint">點格子循環：空白→例假→特休　·　右鍵格子＝詳細　·　右鍵人名＝快速輸入日期　·　點日期表頭＝特殊日</span><span class="spacer"></span><button class="add" id="lvSaveBtn" onclick="saveDraft()">儲存輪休表</button>'
-         :'<span class="spacer"></span><span class="hint">主管唯讀,排休由人資登錄</span>')+'</div>'+
-    '<div class="panel"><div class="rmtitle">'+rocTitle()+'</div><div id="lvBody"><div class="spin">載入中…</div></div></div>';
+    '<div class="toolbar">'+mstep()+tools+'</div>'+
+    '<div class="panel"><div class="rmtitle">'+rocTitle()+' · 休假登錄</div><div id="lvBody"><div class="spin">載入中…</div></div></div>';
   loadDraft(edit);
 }
+function leaveEdit(on){ EDITMODE=on; RCHANGES={}; SPCHANGES={}; scLeave(); }
 function loadDraft(edit){
   api('admin_rosterTable',{year:yy(),month:mm(),draft:true}).then(function(j){
     if(!j.ok){ $('lvBody').innerHTML='<div class="empty">'+esc(j.msg||'讀取失敗')+'</div>'; return; }
-    DRAFT=j; state.roster=j; var ed=edit&&j.canEdit;
+    DRAFT=j; state.roster=j; var ed=edit&&j.canEdit&&EDITMODE;
     $('lvBody').innerHTML=draftMatrix(j,ed)+rmLegendDraft()+noteBox(j.note,ed);
     if($('lvTop')) renderPeriod($('lvTop'), j.period, j.canEdit);
     if(ed) bindDraftClicks();
   });
 }
 function rmLegendDraft(){
-  return '<div class="rmlegend">符號：<b>●</b> 例假　<b>特</b> 特休　<b>事</b> 事假　<b>病</b> 病假　<b>婚</b> 婚假　<b>喪</b> 喪假　<b>公</b> 公假　｜　特殊日：<span><span class="sw" style="background:#FFFF00"></span>工務會議</span>　<span><span class="sw" style="background:#92D050"></span>職安會議</span>　<span><span class="sw" style="background:#FFC000"></span>特殊活動</span></div>';
+  return '<div class="rmlegend">符號：<b>●</b> 例假　<b>特</b> 特休　<b>事</b> 事假　<b>病</b> 病假　<b>婚</b> 婚假　<b>喪</b> 喪假　<b>公</b> 公假　｜　<span class="lg-plan">灰＝預定</span>　<span class="lg-adj">紅＝人資調整</span>　<span class="lg-cancel">○＝人資取消或調假</span>'+
+    '<br style="line-height:2.2">特殊日：<span><span class="sw" style="background:#FFFF00"></span>工務會議</span>　<span><span class="sw" style="background:#92D050"></span>職安會議</span>　<span><span class="sw" style="background:#FFC000"></span>特殊活動</span></div>';
 }
 function draftMatrix(data,editable){
   var y=data.year,m=data.month,days=new Date(y,m,0).getDate(),wk=['日','一','二','三','四','五','六'],special=data.special||{};
@@ -627,8 +632,12 @@ function draftMatrix(data,editable){
         h+='<td class="hcell hnm rname'+(editable&&p.empId?' ed':'')+'" data-emp="'+esc(p.empId)+'" title="右鍵可快速輸入例假/特休日期">'+esc(p.name)+'</td>';
         var lv=(data.leaves[cid(p.empId)])||{};
         for(var dd=1;dd<=days;dd++){ var dow=new Date(y,m-1,dd).getDay(); var c=lv[dd];
-          var am=(c&&c.src!=='取消')?(c.am||''):'', pm=(c&&c.src!=='取消')?(c.pm||''):'';
-          h+='<td class="rc rcell'+((dow===0||dow===6)?' we':'')+(editable&&p.empId?' ed':'')+'" data-emp="'+esc(p.empId)+'" data-day="'+dd+'" data-am="'+esc(am)+'" data-pm="'+esc(pm)+'">'+lvSym(am,pm)+'</td>';
+          var sym='',cls='',am='',pm='';
+          if(c){
+            if(c.src==='取消'){ sym='○'; cls=' src-cancel'; }
+            else { am=c.am||''; pm=c.pm||''; sym=lvSym(am,pm); cls=' '+(c.src==='人資調整'?'src-adj':'src-plan'); }
+          }
+          h+='<td class="rc rcell'+((dow===0||dow===6)?' we':'')+cls+(editable&&p.empId?' ed':'')+'" data-emp="'+esc(p.empId)+'" data-day="'+dd+'" data-am="'+esc(am)+'" data-pm="'+esc(pm)+'">'+sym+'</td>';
         }
         h+='</tr>';
       });
@@ -638,6 +647,7 @@ function draftMatrix(data,editable){
 }
 function setDraftCell(td,am,pm){
   td.setAttribute('data-am',am); td.setAttribute('data-pm',pm); td.textContent=lvSym(am,pm);
+  td.classList.remove('src-adj','src-cancel','blue'); td.classList.add('src-plan');
   RCHANGES[td.getAttribute('data-emp')+'_'+Number(td.getAttribute('data-day'))]={empId:td.getAttribute('data-emp'),day:Number(td.getAttribute('data-day')),am:am,pm:pm};
 }
 function cycleDraftCell(td){ var am=td.getAttribute('data-am')||''; var i=ROSTER_CYCLE.indexOf(am); if(i<0)i=0; var n=ROSTER_CYCLE[(i+1)%ROSTER_CYCLE.length]; setDraftCell(td,n,n); }
@@ -677,7 +687,7 @@ function saveDraft(){
   var btn=$('lvSaveBtn'); if(btn){btn.disabled=true;btn.textContent='儲存中…';}
   api('admin_saveRosterBatch',{year:yy(),month:mm(),changes:changes,specials:specials,note:note}).then(function(j){
     if(btn){btn.disabled=false;btn.textContent='儲存輪休表';}
-    if(!j.ok){ alert(j.msg||'儲存失敗'); return; } alert('已儲存'); RCHANGES={}; SPCHANGES={}; scLeave();
+    if(!j.ok){ alert(j.msg||'儲存失敗'); return; } alert('已儲存'); RCHANGES={}; SPCHANGES={}; EDITMODE=false; scLeave();
   });
 }
 function scRoster(){

@@ -154,6 +154,7 @@
     <div class="hero-date" id="heroDate"></div>
   </div>
   <div class="pbody">
+    <div id="timeWarn" class="miniwarn" style="display:none"></div>
     <label class="lbl">打卡位置</label>
     <select id="siteSel" class="fld"><option>載入中…</option></select>
     <div id="otherWrap" style="display:none">
@@ -162,8 +163,12 @@
     </div>
     <div class="gpsrow"><div class="gps" id="gps">定位中…</div><button type="button" class="reloc" id="relocBtn">↻ 重新定位</button></div>
     <a id="safariBtn" class="safari" style="display:none">↗ 定位一直失敗？改用 Safari 打卡</a>
-    <label class="lbl">備註（選填）</label>
+    <label class="lbl" id="noteLbl">備註（選填）</label>
     <input id="note" class="fld" placeholder="例：交通延誤，遲到 10 分">
+    <div id="lateWrap" style="display:none">
+      <label class="lbl">晚退原因（17:30 後未加班必填）</label>
+      <select id="lateReason" class="fld"><option value="">請選擇原因…</option><option>等候交通</option><option>私人事務</option><option>於工務所休息</option></select>
+    </div>
     <div class="punchbtns">
       <button class="pbtn in" id="btnIn" disabled><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4"/><path d="M3 12h11"/><path d="M9 8l4 4-4 4"/></svg></span>上班</button>
       <button class="pbtn out" id="btnOut" disabled><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#E29A2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4"/><path d="M21 12H10"/><path d="M17 8l4 4-4 4"/></svg></span>下班</button>
@@ -183,7 +188,7 @@
   var GAS_URL = "https://script.google.com/macros/s/AKfycbx6fUEPK68TdacpmWVzk-0t_0fQMOqUjyRWm_RastD9YY-fkST9Lzaqg5Pq0gP18Af3/exec";
 
   // ===== 自動破快取：每次改版把下面版本號換新值，使用者重開會自動抓最新版 =====
-  var APP_VERSION = "2026-08-29-new-01";
+  var APP_VERSION = "2026-08-30-new-02";
   (function ensureFresh() {
     try {
       var cur = new URLSearchParams(location.search).get('_v');
@@ -323,8 +328,19 @@
   }
 
   /* ===== 打卡 ===== */
+  function nowHM() { var n = new Date(); return ('0' + n.getHours()).slice(-2) + ':' + ('0' + n.getMinutes()).slice(-2); }
+  function refreshTimeState() {
+    var warn = document.getElementById('timeWarn'); if (!warn) return;
+    var lw = document.getElementById('lateWrap'), nl = document.getElementById('noteLbl'), t = nowHM();
+    var early = t < '07:30', late = t > '17:30';
+    if (early) { warn.style.display = 'block'; warn.textContent = '⏰ 非正常上班時間（早到）。如有特殊原因,請於下方「備註」說明（必填）。'; }
+    else if (late) { warn.style.display = 'block'; warn.textContent = '🌙 非正常下班時間。已申請加班請打「加班結束」;未申請加班請選晚退原因並完成下班打卡。'; }
+    else { warn.style.display = 'none'; }
+    if (lw) lw.style.display = late ? 'block' : 'none';
+    if (nl) nl.textContent = early ? '備註（早到必填）' : '備註（選填）';
+  }
   function startClock() {
-    function tick() { var el = document.getElementById('clock'); if (!el) return; var n = new Date(); el.textContent = ('0' + n.getHours()).slice(-2) + ':' + ('0' + n.getMinutes()).slice(-2); }
+    function tick() { var el = document.getElementById('clock'); if (el) { var n = new Date(); el.textContent = ('0' + n.getHours()).slice(-2) + ':' + ('0' + n.getMinutes()).slice(-2); } refreshTimeState(); }
     tick(); if (window._clk) clearInterval(window._clk); window._clk = setInterval(tick, 15000);
   }
   function startPunch() {
@@ -407,6 +423,13 @@
     var reason = isOther ? document.getElementById('otherReason').value.trim() : '';
     if (isOther && !reason) { alert('請輸入地點／事由'); return; }
     var note = document.getElementById('note').value.trim();
+    var t = nowHM();
+    if (type === '上班' && t < '07:30' && !note) { alert('非正常上班時間（早到）,請於「備註」說明原因'); var ne = document.getElementById('note'); if (ne) ne.focus(); return; }
+    if (type === '下班' && t > '17:30') {
+      var lr = document.getElementById('lateReason'); var v = lr ? lr.value : '';
+      if (!v) { alert('非正常下班時間,請先選擇「晚退原因」;若有加班請改打「加班結束」'); return; }
+      note = note ? (v + '；' + note) : v;
+    }
     var site = '', siteName = '';
     if (!isOther) { var s = findSiteByName(sel.value); site = s ? s.name : sel.value; siteName = s ? s.name : ''; }
     punchCtx = { type: type, note: note };
