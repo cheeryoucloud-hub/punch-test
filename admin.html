@@ -158,7 +158,7 @@
   .rmx td.rc.src-plan{ color:#5b6570; } .rmx td.rc.src-adj{ color:#c00000; }
   .rmx td.rc.src-cancel{ color:#c00000; }
   .rmx td.rc.blue{ background:#00B0F0 !important; color:#062a3a; font-weight:900; }
-  .rmx td.rc.blue[data-tip]{ cursor:help; }
+  .rmx td.rc[data-tip]{ cursor:help; }
   .rmx thead th.sp-y{ background:#FFFF00; color:#333; } .rmx thead th.sp-g{ background:#92D050; color:#123; } .rmx thead th.sp-o{ background:#FFC000; color:#331; }
   .rmx thead th.ed{ cursor:pointer; }
   #rtip{ position:fixed; z-index:9999; display:none; background:#1f2d29; color:#fff; font-size:12px; line-height:1.55; padding:8px 11px; border-radius:8px; box-shadow:0 8px 22px rgba(0,0,0,.24); pointer-events:none; max-width:240px; white-space:pre-line; }
@@ -331,6 +331,7 @@ function pageTop(title,readonly){
 function mstep(){ return '<div class="mstep"><button onclick="mshift(-1)">‹</button><span class="lb">'+yy()+' 年 '+mm()+' 月</span><button onclick="mshift(1)">›</button><span class="now" onclick="mThis()">本月</span></div>'; }
 function mshift(n){ var y=yy(),m=mm()+n; if(m<1){m=12;y--;} if(m>12){m=1;y++;} state.ym=y+'/'+p2(m); render(); }
 function mThis(){ state.ym=ymNow(); render(); }
+function rocTitle(){ return '啓宇營造工程股份有限公司　'+(yy()-1911)+' 年 '+mm()+' 月份工地休假輪值表'; }
 
 /* ===================== 派發 ===================== */
 function render(){
@@ -442,10 +443,10 @@ function rmLegend(){
     '<br style="line-height:2.2">特殊日：<span><span class="sw" style="background:#FFFF00"></span>工務會議</span>　<span><span class="sw" style="background:#92D050"></span>職安會議</span>　<span><span class="sw" style="background:#FFC000"></span>特殊活動</span></div>';
 }
 /* 浮動提示（調休原因） */
-(function(){ var tip; document.addEventListener('mouseover',function(e){ var td=e.target.closest&&e.target.closest('td.rc.blue[data-tip]'); if(!td)return;
+(function(){ var tip; document.addEventListener('mouseover',function(e){ var td=e.target.closest&&e.target.closest('td.rc[data-tip]'); if(!td)return;
     if(!tip){ tip=document.createElement('div'); tip.id='rtip'; document.body.appendChild(tip); } tip.textContent=td.getAttribute('data-tip'); tip.style.display='block'; });
   document.addEventListener('mousemove',function(e){ if(tip&&tip.style.display==='block'){ tip.style.left=(e.clientX+14)+'px'; tip.style.top=(e.clientY+14)+'px'; } });
-  document.addEventListener('mouseout',function(e){ var td=e.target.closest&&e.target.closest('td.rc.blue[data-tip]'); if(td&&tip)tip.style.display='none'; });
+  document.addEventListener('mouseout',function(e){ var td=e.target.closest&&e.target.closest('td.rc[data-tip]'); if(td&&tip)tip.style.display='none'; });
 })();
 function editSpecial(day){
   if(!state.roster||!state.roster.canEdit)return;
@@ -453,7 +454,7 @@ function editSpecial(day){
   modal(yy()+'/'+p2(mm())+'/'+p2(day)+' 特殊日標記',
     '<div class="field"><label>類型（表頭會上色）</label><select id="mSp"><option value="">（清除）</option>'+
     ['工務會議','職安會議','特殊活動'].map(function(o){return '<option'+(cur===o?' selected':'')+'>'+o+'</option>';}).join('')+'</select></div>',
-    function(){ api('admin_saveSpecial',{date:yy()+'/'+p2(mm())+'/'+p2(day),type:$('mSp').value}).then(function(j){ if(!j.ok){alert(j.msg||'失敗');return;} closeModal(); scLeave(); }); });
+    function(){ api('admin_saveSpecial',{date:yy()+'/'+p2(mm())+'/'+p2(day),type:$('mSp').value}).then(function(j){ if(!j.ok){alert(j.msg||'失敗');return;} closeModal(); render(); }); });
 }
 function saveRosterNote(){
   var v=$('rosterNotes').value;
@@ -466,7 +467,7 @@ function rosterMatrix(data,editable){
   var cols='<col style="width:74px"><col style="width:88px"><col style="width:78px"><col style="width:64px">';
   for(var ci=1;ci<=days;ci++) cols+='<col style="width:24px">';
   var h='<div class="rgrid"><table class="rmx"><colgroup>'+cols+'</colgroup><thead>';
-  h+='<tr><th rowspan="2">工地主管</th><th rowspan="2">工地負責人</th><th rowspan="2">工地</th><th>日期</th>';
+  h+='<tr><th rowspan="2">負責人</th><th rowspan="2">工地負責人</th><th rowspan="2">工地</th><th>日期</th>';
   for(var d=1;d<=days;d++){ var dw=new Date(y,m-1,d).getDay(); var sp=special[d]; var spc=sp?(' '+(SPCLS[sp]||'')):''; var edc=editable?' ed':'';
     h+='<th class="'+((dw===0||dw===6)?'we':'').trim()+spc+edc+'"'+(sp?' title="'+esc(sp)+'"':'')+(editable?(' onclick="editSpecial('+d+')"'):'')+'>'+d+'</th>'; }
   h+='</tr><tr><th>星期</th>';
@@ -488,7 +489,7 @@ function rosterMatrix(data,editable){
         for(var dd=1;dd<=days;dd++){ var dow=new Date(y,m-1,dd).getDay(); var c=lv[dd];
           var sym='',cls='',tip='';
           if(c){
-            if(c.src==='取消'){ sym='○'; cls=' src-cancel'; }
+            if(c.src==='取消'){ sym='○'; cls=' src-cancel'; if(c.note) tip=' data-tip="'+esc(c.note)+'"'; }
             else if(c.src==='調休'){ sym=lvSym(c.am,c.pm); cls=' blue'; if(c.note) tip=' data-tip="'+esc(c.note)+'"'; }
             else if(c.src==='人資調整'){ sym=lvSym(c.am,c.pm); cls=' src-adj'; if(c.note) tip=' data-tip="'+esc(c.note)+'"'; }
             else { sym=lvSym(c.am,c.pm); cls=' src-plan'; }
@@ -507,15 +508,15 @@ function scLeave(){
   var edit=isHR();
   $('main').innerHTML=pageTop('休假登錄',!edit)+'<div id="lvTop"></div>'+
     '<div class="toolbar">'+mstep()+(edit?'<span class="spacer"></span><span class="hint">點格子設定假別　·　點日期表頭設定特殊日(會議/活動)</span>':'<span class="spacer"></span><span class="hint">主管唯讀,排休由人資登錄</span>')+'</div>'+
-    '<div class="panel"><div class="rmtitle">預定輪休表 · 休假登錄　'+yy()+' 年 '+mm()+' 月</div><div id="lvBody"><div class="spin">載入中…</div></div></div>';
+    '<div class="panel"><div class="rmtitle">'+rocTitle()+'</div><div id="lvBody"><div class="spin">載入中…</div></div></div>';
   loadRoster('lvBody','lvTop',edit);
 }
 function scRoster(){
   $('main').innerHTML=pageTop('輪休表',false)+
-    '<div class="toolbar">'+mstep()+'<span class="spacer"></span><button class="add" onclick="window.print()">列印 / PDF</button></div>'+
-    '<div class="panel"><div class="rmtitle">預定輪休表　'+yy()+' 年 '+mm()+' 月</div><div id="rsBody"><div class="spin">載入中…</div></div>'+
+    '<div class="toolbar noprint">'+mstep()+'<span class="spacer"></span><button class="btn" onclick="window.print()">列印 / PDF</button><button class="add" id="xlsBtn" onclick="exportRosterExcel()">匯出 Excel</button></div>'+
+    '<div class="panel"><div class="rmtitle">'+rocTitle()+'</div><div id="rsBody"><div class="spin">載入中…</div></div>'+
     '<div class="sigfoot" style="grid-template-columns:repeat(3,1fr);margin-top:22px"><div>協理</div><div>經理</div><div>製表</div></div></div>';
-  loadRoster('rsBody',null,false);
+  loadRoster('rsBody',null,true);
 }
 function loadRoster(bodyId,topId,editable){
   api('admin_rosterTable',{year:yy(),month:mm()}).then(function(j){
@@ -527,8 +528,22 @@ function loadRoster(bodyId,topId,editable){
   });
 }
 function noteBox(note,editable){
-  if(editable) return '<div class="notesbox"><label>輪休表注意事項（會印在輪休表 / 列印上）</label><textarea id="rosterNotes" rows="4" placeholder="每行一項,例：本月工務會議 8/8、8/22;需遵行「12休1」原則…">'+esc(note||'')+'</textarea><div style="margin-top:8px"><button class="btn ap sm" onclick="saveRosterNote()">儲存注意事項</button></div></div>';
-  return note?('<div class="notesbox"><label>注意事項</label><div class="rnotes">'+esc(note)+'</div></div>'):'';
+  if(editable) return '<div class="notesbox"><label>注意事項（會印在輪休表 / Excel 下方）</label><textarea id="rosterNotes" rows="4" placeholder="每行一項,例：本月工務會議 8/8、8/22;需遵行「12休1」原則…">'+esc(note||'')+'</textarea><div style="margin-top:8px"><button class="btn ap sm" onclick="saveRosterNote()">儲存注意事項</button></div></div>';
+  return '<div class="notesbox"><label>注意事項</label><div class="rnotes">'+(note?esc(note):'（尚未填寫）')+'</div></div>';
+}
+function downloadB64(b64,filename){
+  try{ var bin=atob(b64),len=bin.length,arr=new Uint8Array(len); for(var i=0;i<len;i++)arr[i]=bin.charCodeAt(i);
+    var blob=new Blob([arr],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    var url=URL.createObjectURL(blob),a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); },1500);
+  }catch(e){ alert('下載失敗：'+e); }
+}
+function exportRosterExcel(){
+  var btn=$('xlsBtn'); if(btn){ btn.disabled=true; btn.textContent='產生中…'; }
+  api('admin_rosterExcel',{year:yy(),month:mm()}).then(function(j){
+    if(btn){ btn.disabled=false; btn.textContent='匯出 Excel'; }
+    if(!j.ok){ alert(j.msg||'匯出失敗'); return; } downloadB64(j.b64,j.filename);
+  });
 }
 function renderPeriod(el,per,canEdit){
   var open=per&&per.open, lock=per&&per.lock;
@@ -542,7 +557,7 @@ function editPeriod(open,lock){
   modal('登錄期別設定（'+yy()+' / '+p2(mm())+'）',
     '<div class="field"><label>開放登錄</label><select id="mOpen"><option value="1"'+(open?' selected':'')+'>開放</option><option value="0"'+(open?'':' selected')+'>不開放</option></select></div>'+
     '<div class="field"><label>鎖定（鎖定後不可修改）</label><select id="mLock"><option value="0"'+(lock?'':' selected')+'>未鎖定</option><option value="1"'+(lock?' selected':'')+'>鎖定</option></select></div>',
-    function(){ api('admin_period',{set:true,year:yy(),month:mm(),open:$('mOpen').value==='1',lock:$('mLock').value==='1'}).then(function(j){ if(!j.ok){alert(j.msg||'失敗');return;} closeModal(); scLeave(); }); });
+    function(){ api('admin_period',{set:true,year:yy(),month:mm(),open:$('mOpen').value==='1',lock:$('mLock').value==='1'}).then(function(j){ if(!j.ok){alert(j.msg||'失敗');return;} closeModal(); render(); }); });
 }
 function editLeave(empId,name,day){
   if(state.roster&&state.roster.period&&state.roster.period.lock){ alert('該月已鎖定,無法修改'); return; }
@@ -551,7 +566,7 @@ function editLeave(empId,name,day){
     '<div class="field"><label>時段</label><select id="mSlot"><option value="全天">全天</option><option value="上午">上午</option><option value="下午">下午</option></select></div>'+
     '<div class="field"><label>假別</label><select id="mLv">'+opts+'</select></div>'+
     '<div class="hint">選「（清除）」= 取消該時段休假</div>',
-    function(){ api('admin_saveLeave',{empId:empId,date:yy()+'/'+p2(mm())+'/'+p2(day),slot:$('mSlot').value,leaveType:$('mLv').value}).then(function(j){ if(!j.ok){alert(j.msg||'失敗');return;} closeModal(); scLeave(); }); });
+    function(){ api('admin_saveLeave',{empId:empId,date:yy()+'/'+p2(mm())+'/'+p2(day),slot:$('mSlot').value,leaveType:$('mLv').value}).then(function(j){ if(!j.ok){alert(j.msg||'失敗');return;} closeModal(); render(); }); });
 }
 
 /* ===================== 出勤表（民國年 + 加班） ===================== */
