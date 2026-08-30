@@ -791,7 +791,7 @@
   }
   function renderOverview(d) {
     var w = document.getElementById('wrap');
-    if (!d || !d.ok) { w.innerHTML = '<div class="card">讀取失敗</div>'; return; }
+    if (!d || !d.ok) { w.innerHTML = '<div class="card"><div class="gps err">讀取失敗：' + esc((d && d.msg) || '（無訊息）') + '</div></div>' + tabBar('overview'); return; }
     if (!d.bound) { w.innerHTML = '<div class="card"><h1>尚未綁定</h1><p class="muted">請先從打卡頁完成綁定後再使用。</p></div>' + tabBar('overview'); return; }
 
     ovCur = d.date;
