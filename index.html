@@ -188,7 +188,7 @@
   var GAS_URL = "https://script.google.com/macros/s/AKfycbx6fUEPK68TdacpmWVzk-0t_0fQMOqUjyRWm_RastD9YY-fkST9Lzaqg5Pq0gP18Af3/exec";
 
   // ===== 自動破快取：每次改版把下面版本號換新值，使用者重開會自動抓最新版 =====
-  var APP_VERSION = "2026-08-30-new-02";
+  var APP_VERSION = "2026-08-30-new-03";
   (function ensureFresh() {
     try {
       var cur = new URLSearchParams(location.search).get('_v');
@@ -450,9 +450,7 @@
   }
   function sendCard(res) {
     try {
-      if (!liff.isInClient()) return Promise.resolve();
-      var ctx = liff.getContext();
-      if (!ctx || ctx.type === 'external' || ctx.type === 'none') return Promise.resolve();
+      if (!liff.isInClient()) return Promise.resolve();   // 外部瀏覽器無法發卡片(LINE 限制)
       return liff.sendMessages([buildFlex(res)]).catch(function () {});
     } catch (e) { return Promise.resolve(); }
   }
@@ -514,9 +512,7 @@
   }
   function sendFlexMsg(flex) {
     try {
-      if (!liff.isInClient()) return Promise.resolve();
-      var ctx = liff.getContext();
-      if (!ctx || ctx.type === 'external' || ctx.type === 'none') return Promise.resolve();
+      if (!liff.isInClient()) return Promise.resolve();   // 外部瀏覽器無法發卡片(LINE 限制)
       return liff.sendMessages([flex]).catch(function () {});
     } catch (e) { return Promise.resolve(); }
   }
