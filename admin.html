@@ -131,7 +131,7 @@
   .spacer{ margin-left:auto; }
 
   /* transfer */
-  .tf{ border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:12px; }
+  .tf{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:12px; box-shadow:var(--shadow); }
   .tf.act{ border-left:3px solid var(--amber); }
   .tf-h{ display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; } .tf-h b{ font-size:15px; }
   .tf-d{ font-size:13.5px; } .tf-r{ font-size:12.5px; color:var(--muted); margin-top:2px; }
@@ -144,21 +144,26 @@
 
   /* 輪休表(照舊系統樣式,只換配色) */
   .rwrap{ overflow-x:auto; }
-  table.roster{ border-collapse:collapse; font-size:12px; table-layout:fixed; width:auto; }
-  table.roster th,table.roster td{ border:1px solid var(--line); text-align:center; height:25px; line-height:1.15; overflow:hidden; padding:1px 2px; color:var(--ink); }
-  table.roster th{ background:var(--surface-2); font-weight:700; }
-  table.roster th.we,table.roster td.we{ background:var(--surface-2); }
-  table.roster th.we{ color:#c2597c; }
-  table.roster .lh{ background:var(--surface-2); font-weight:700; white-space:nowrap; }
-  table.roster td.rname{ font-weight:700; white-space:nowrap; text-align:left; padding:0 7px; }
-  table.roster td.rcell{ font-weight:800; cursor:default; }
-  table.roster td.rcell.radj{ color:#c00000; }
-  table.roster td.rcell.lvcancel{ color:#c00000; }
-  table.roster td.blue{ background:#00B0F0 !important; color:#062a3a; font-weight:900; }
+  table.roster{ border-collapse:collapse; font-size:11px; }
+  table.roster th,table.roster td{ border:1px solid #dce6e2; padding:2px 3px; text-align:center; min-width:15px; color:var(--ink); }
+  table.roster th{ background:#eaf1ee; color:#38544d; font-weight:700; }
+  table.roster .we{ background:#f8f4f1; color:#b06b45; }
+  table.roster .lh{ background:#e7eff2; font-weight:bold; white-space:nowrap; min-width:40px; }
+  table.roster .rname{ text-align:left; min-width:62px; white-space:nowrap; font-weight:700; }
+  table.roster td.rcell{ color:#6b7280; }                    /* 預定＝灰 */
+  table.roster td.radj{ color:#c00000; font-weight:bold; }   /* 人資調整＝紅 */
+  table.roster td.lvcancel::after{ content:''; display:inline-block; width:13px; height:13px; border:1.6px dashed #8a8f98; border-radius:50%; vertical-align:middle; }
+  table.roster td.blue{ background:#00B0F0; color:#062a3a; font-weight:bold; }
   table.roster td[data-tip]{ cursor:help; }
-  table.roster th.sp-y{ background:#FFFF00 !important; color:#333; } table.roster th.sp-g{ background:#92D050 !important; color:#123; } table.roster th.sp-o{ background:#FFC000 !important; color:#331; }
+  table.roster th.sp-y{ background:#FFFF00; color:#333; } table.roster th.sp-g{ background:#92D050; color:#123; } table.roster th.sp-o{ background:#FFC000; color:#331; }
+  table.roster tr:hover td.rcell:not(.blue), table.roster tr:hover td.rname{ background:#e3f2ea; }
+  #rHost.editing td.rcell,#rHost.editing td.rname{ cursor:pointer; }
   #rHost.editing td.rcell:hover{ background:#fff3cd; }
-  #rHost.editing table.roster tr:hover td.rcell:not(.blue), #rHost.editing table.roster tr:hover td.rname{ background:var(--brand-soft); }
+  #rHost.editing th.dcol{ cursor:pointer; }
+  #rHost.editing th.dcol:hover{ outline:2px solid #f59e0b; outline-offset:-2px; }
+  .rmtitle{ text-align:center; font-size:18px; font-weight:800; margin-bottom:12px; }
+  .rnotes{ color:#c00000; font-weight:bold; font-size:13px; white-space:pre-line; }
+  .rmlegend .dashleg{ display:inline-block; width:13px; height:13px; border:1.6px dashed #8a8f98; border-radius:50%; vertical-align:middle; }
   #rHost.editing th.dcol{ cursor:pointer; }
   /* 預定輪休表矩陣 */
   .rgrid{ overflow-x:auto; }
@@ -195,7 +200,7 @@
   table.att{ width:100%; border-collapse:collapse; font-size:12px; }
   .att th,.att td{ border:1px solid var(--line); padding:4px 6px; text-align:center; height:22px; }
   .att th{ background:var(--surface-2); font-weight:700; }
-  .att td.lv{ background:var(--brand-soft); color:var(--brand-ink); font-weight:700; }
+  .att td.lv{ color:#000; font-weight:600; }
   .att td.st{ color:var(--amber); font-weight:700; }
   .sigfoot{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:20px; }
   .sigfoot div{ border-top:1px solid var(--ink); padding-top:6px; font-size:12px; text-align:center; color:var(--muted); }
@@ -223,10 +228,14 @@
   .att thead th{ background:#f0f0f0; font-weight:700; }
   .att .sub{ font-size:9px; font-weight:400; color:#555; }
   .att td.dt{ white-space:nowrap; font-size:11px; }
-  .att tr.lvrow td,.att td.lv{ background:#e6e6e6; }
+  .att tr.lvrow td,.att td.lv{ background:#e6e6e6; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   .report.editing td.ec{ background:#fffdf4; cursor:text; }
   .report.editing td.ec:focus{ background:#fff7d6; outline:2px solid var(--brand); }
   .rpt-notes{ font-size:9.5px; color:#333; margin-top:8px; line-height:1.5; } .rpt-notes p{ margin:2px 0; }
+  .a4{ width:210mm; min-height:297mm; margin:0 auto 18px; background:#fff; padding:12mm 10mm; box-shadow:0 2px 14px rgba(20,30,50,.14); box-sizing:border-box; }
+  .a4+.a4{ page-break-before:always; }
+  @media(max-width:1000px){ .a4{ width:100%; min-height:0; padding:14px; transform:none; } }
+  @media print{ .a4{ width:auto; min-height:0; margin:0; padding:0; box-shadow:none; } }
   .rpt-sign{ display:flex; justify-content:space-between; gap:10px; margin-top:18px; font-size:12px; flex-wrap:wrap; color:#000; }
   @media print{
     .report{ border:none; padding:0; } table.att{ font-size:10.5px; } .att th,.att td{ height:auto; padding:1px 3px; }
@@ -257,6 +266,8 @@
   .cap7{ font-size:11px; color:var(--muted); font-weight:700; margin-bottom:3px; }
   .dch .d1{ font-size:13.5px; font-weight:800; } .dch .d2{ font-size:12.5px; margin-top:2px; line-height:1.5; }
   .rsn{ font-size:13.5px; font-weight:700; }
+  .tfrow>div:nth-child(4),.tfrow>div:nth-child(5){ border-left:1px solid var(--line); padding-left:14px; }
+  @media(max-width:1150px){ .tfrow>div:nth-child(5){ border-left:none; padding-left:0; border-top:1px solid var(--line); padding-top:10px; margin-top:4px; } }
   .signrow2{ display:flex; gap:8px; }
   .sg{ flex:1; background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:7px 8px; text-align:center; }
   .sg.okd{ background:var(--brand-soft); border-color:transparent; }
@@ -575,7 +586,8 @@ function loadTransfer(){
           '<div><div class="cap7">調整後</div>'+dchip(t.neu,t.newAM,t.newPM)+'</div>'+
           '<div><div class="cap7">理由</div><div class="rsn">'+esc(t.reason||'—')+'</div></div>'+
           '<div><div class="cap7" style="text-align:center">核准狀態</div><div class="signrow2">'+sg('工地負責人',t.boss)+sg('工地主管',t.mgr)+'</div>'+
-          (t.canAct?'<div class="signrow2" style="margin-top:8px"><button class="btn ap sm" style="flex:1" onclick="actTr(\''+esc(t.id)+'\',\'approve\')">核准</button><button class="btn rj sm" style="flex:1" onclick="actTr(\''+esc(t.id)+'\',\'reject\')">退回</button></div>':'')+
+          (t.canAct?'<div class="signrow2" style="margin-top:8px"><button class="btn ap sm" style="flex:1" onclick="actTr(\''+esc(t.id)+'\',\'approve\')">核准</button><button class="btn rj sm" style="flex:1" onclick="actTr(\''+esc(t.id)+'\',\'reject\')">退回</button></div>'
+           :(t.canRevoke?'<div class="signrow2" style="margin-top:8px"><button class="btn rj sm" style="flex:1" onclick="actTr(\''+esc(t.id)+'\',\'reject\')">退回（撤銷核准）</button></div>':''))+
           '</div>'+
         '</div>'+
         '</div>';
@@ -586,7 +598,7 @@ function loadTransfer(){
 }
 function signbox(role,who){ if(who) return '<div class="sign signed"><div class="role">'+role+'</div><div class="who">'+esc(who)+' ✓</div></div>';
   return '<div class="sign"><div class="role">'+role+'</div><div class="who muted" style="font-weight:600">待簽核</div></div>'; }
-function actTr(id,dec){ if(dec==='reject'&&!confirm('確定退回此調休申請?'))return; api('admin_actTransfer',{id:id,decision:dec}).then(function(j){ if(!j.ok)alert(j.msg||'操作失敗'); loadTransfer(); }); }
+function actTr(id,dec){ if(dec==='reject'&&!confirm('確定退回此調休申請?已核准者會一併還原輪休表。'))return; api('admin_actTransfer',{id:id,decision:dec}).then(function(j){ if(!j.ok)alert(j.msg||'操作失敗'); loadTransfer(); }); }
 
 /* ===================== 休假登錄 / 輪休表（矩陣） ===================== */
 function lvSym(am,pm){
@@ -605,7 +617,7 @@ function rmLegend(isDraft){
   var syms='符號：<b>●</b> 例假　<b>特</b> 特休　<b>事</b> 事假　<b>病</b> 病假　<b>婚</b> 婚假　<b>喪</b> 喪假　<b>公</b> 公假　<b>國</b> 國定';
   var sp='特殊日：<span><span class="sw" style="background:#FFFF00"></span>工務會議</span>　<span><span class="sw" style="background:#92D050"></span>職安會議</span>　<span><span class="sw" style="background:#FFC000"></span>特殊活動</span>';
   if(isDraft) return '<div class="rmlegend">'+syms+'　｜　'+sp+'</div>';   // 休假登錄=預定草稿,無來源顏色
-  return '<div class="rmlegend">'+syms+'　｜　<span class="lg-plan">灰＝預定</span>　<span class="lg-adj">紅＝人資調整</span>　<span><span class="sw" style="background:#00B0F0"></span>藍底＝調休(滑過看原因)</span>　<span class="lg-cancel">○＝取消</span>'+
+  return '<div class="rmlegend">'+syms+'　｜　<span class="lg-plan">灰＝預定</span>　<span class="lg-adj">紅＝人資調整</span>　<span><span class="sw" style="background:#00B0F0"></span>藍底＝調休(滑過看原因)</span>　<span class="dashleg"></span>＝人資取消或調假'+
     '<br style="line-height:2.2">'+sp+'</div>';
 }
 /* 浮動提示（調休原因；藍格與取消○皆可）*/
@@ -620,8 +632,6 @@ function rosterHtml(r){
   function bk(e){return e.boss;} function mk(e){return e.boss+'|'+e.mgr;} function sk(e){return e.boss+'|'+e.mgr+'|'+e.site;}
   function runspan(idx,keyFn){ if(idx>0&&keyFn(g[idx])===keyFn(g[idx-1]))return 0; var span=1; for(var j=idx+1;j<g.length&&keyFn(g[j])===keyFn(g[idx]);j++)span++; return span; }
   var days=r.days||[];
-  var cols='<col style="width:70px"><col style="width:84px"><col style="width:74px"><col style="width:60px">';
-  for(var ci=0;ci<days.length;ci++)cols+='<col style="width:24px">';
   var h1='<tr><th class="lh" rowspan="2">負責人</th><th class="lh" rowspan="2">工地負責人</th><th class="lh" rowspan="2">工地</th><th class="lh">日期</th>';
   var h2='<th class="lh">星期</th>';
   days.forEach(function(d){ var sp=r.special&&r.special[d.d]; var we=(d.dow===0||d.dow===6)?'we':''; var c1=('dcol '+we+(sp?(' '+(SPCLS[sp]||'')):'')).trim();
@@ -638,7 +648,7 @@ function rosterHtml(r){
     body+='<td class="rname" data-emp="'+esc(e.id)+'" title="右鍵可快速輸入例假/特休日期">'+esc(e.name)+'</td>';
     for(var i=0;i<days.length;i++){
       var am=(e.ams&&e.ams[i])||'', pm=(e.pms&&e.pms[i])||'', dam=(e.dams&&e.dams[i])||'', dpm=(e.dpms&&e.dpms[i])||'';
-      var sym=(e.cancelled&&e.cancelled[i])?'○':symOf(am,pm);
+      var sym=(e.cancelled&&e.cancelled[i])?'':symOf(am,pm);
       var we=(days[i].dow===0||days[i].dow===6)?'we ':'';
       var rd=(e.red&&e.red[i])?' radj':''; var cc=(e.cancelled&&e.cancelled[i])?' lvcancel':''; var bl=(e.blue&&e.blue[i])?' blue':'';
       var tip=(e.tips&&e.tips[i])?(' data-tip="'+esc(e.tips[i])+'"'):'';
@@ -646,7 +656,7 @@ function rosterHtml(r){
     }
     body+='</tr>';
   });
-  return '<div class="rwrap"><table class="roster"><colgroup>'+cols+'</colgroup>'+head+body+'</table></div>';
+  return '<div class="rwrap"><table class="roster">'+head+body+'</table></div>';
 }
 /* ---- 編輯互動（照舊系統）---- */
 var ROSTER_CYCLE=['rest','special','draft','clear'];
@@ -655,7 +665,7 @@ function setRosterMode(td,mode){
   var emp=td.getAttribute('data-emp'), day=Number(td.getAttribute('data-day'));
   td.classList.remove('radj','lvcancel','blue'); td.removeAttribute('data-tip'); td.setAttribute('data-mode',mode);
   if(mode==='draft'){ td.setAttribute('data-am',dam); td.setAttribute('data-pm',dpm); td.textContent=symOf(dam,dpm); ROSTER_CHANGES[emp+'_'+day]={empId:emp,day:day,am:dam,pm:dpm}; return; }
-  if(mode==='clear'){ td.setAttribute('data-am',''); td.setAttribute('data-pm',''); td.textContent=''; if(dam||dpm){ td.classList.add('lvcancel'); td.textContent='○'; } ROSTER_CHANGES[emp+'_'+day]={empId:emp,day:day,am:'',pm:''}; return; }
+  if(mode==='clear'){ td.setAttribute('data-am',''); td.setAttribute('data-pm',''); td.textContent=''; if(dam||dpm){ td.classList.add('lvcancel'); } ROSTER_CHANGES[emp+'_'+day]={empId:emp,day:day,am:'',pm:''}; return; }
   var v=(mode==='special')?'特休':'例假';
   td.setAttribute('data-am',v); td.setAttribute('data-pm',v); td.textContent=symOf(v,v);
   if(v!==dam||v!==dpm)td.classList.add('radj');
@@ -678,7 +688,7 @@ function setCellLeave(td,am,pm){
   var dam=td.getAttribute('data-dam')||'', dpm=td.getAttribute('data-dpm')||'';
   td.classList.remove('radj','lvcancel','blue'); td.removeAttribute('data-mode'); td.removeAttribute('data-tip');
   td.setAttribute('data-am',am); td.setAttribute('data-pm',pm);
-  if(!am&&!pm){ td.textContent=(dam||dpm)?'○':''; if(dam||dpm)td.classList.add('lvcancel'); }
+  if(!am&&!pm){ td.textContent=''; if(dam||dpm)td.classList.add('lvcancel'); }
   else { td.textContent=symOf(am,pm); if(am!==dam||pm!==dpm)td.classList.add('radj'); }
   ROSTER_CHANGES[emp+'_'+day]={empId:emp,day:day,am:am,pm:pm};
 }
@@ -705,8 +715,8 @@ function bindRosterClicks(){
     else if(t.classList.contains('rcell')&&t.getAttribute('data-emp')){ e.preventDefault(); openLeaveModal(t); } };
 }
 /* ---- 畫面（休假登錄=draft;輪休表=actual）---- */
-function scLeave(){ RSCREEN='leave'; EDIT_MODE=false; loadRosterScreen(); }
-function scRoster(){ RSCREEN='roster'; EDIT_MODE=false; loadRosterScreen(); }
+function scLeave(){ RSCREEN='leave'; EDIT_MODE=false; state.screen='leave'; renderNav(); loadRosterScreen(); }
+function scRoster(){ RSCREEN='roster'; EDIT_MODE=false; state.screen='roster'; renderNav(); loadRosterScreen(); }
 function loadRosterScreen(){
   var isLeave=(RSCREEN==='leave');
   $('main').innerHTML=pageTop(isLeave?'休假登錄':'輪休表',false)+
@@ -799,6 +809,7 @@ function scReport(){
     '<select id="rpSite" onchange="rpFillEmp()"><option value="__all__">全部工地</option></select>'+
     '<select id="rpEmp"><option>載入中…</option></select><span class="spacer"></span>'+
     '<button class="add" onclick="loadReport()">產生</button>'+
+    '<button class="btn" onclick="loadReportBatch()">整個工地產生</button>'+
     '<span id="rpTools"></span></div>'+
     '<div class="panel" id="rpBody"><div class="empty">選擇員工與月份後按「產生」</div></div>';
   api('admin_empList',{needPunchOnly:true}).then(function(j){
@@ -835,6 +846,9 @@ function loadReport(){
 function renderReport(j){
   if(!j)return;
   var ed=j.editable&&RPT_EDIT; rptTools(j.editable);
+  $('rpBody').innerHTML='<div class="a4">'+reportHtml(j,ed)+'</div>'+(ed?'<div class="hint noprint" style="margin-top:8px">＊編輯中：點表格內時間／狀態／備註直接修改,改完按「儲存修正」。</div>':'');
+}
+function reportHtml(j,ed){
   function cell(day,field,val,cls){ var c='ec'+(cls?' '+cls:'');
     if(ed) return '<td class="'+c+'" contenteditable="true" data-day="'+day+'" data-f="'+field+'" oninput="rptEdit(this)">'+esc(val||'')+'</td>';
     return '<td class="'+(cls||'')+'">'+esc(val||'')+'</td>'; }
@@ -860,8 +874,20 @@ function renderReport(j){
       '<p>註4：本人簽名表示已核對本月份出勤、休假及加班紀錄；如有錯誤或遺漏，應於發現後向主管或人事提出更正申請。</p>'+
     '</div>'+
     '<div class="rpt-sign"><span>工務主管：______________</span><span>人事：______________</span><span>工地負責人：______________</span><span>本人：______________</span></div>'+
-    '</div>'+(ed?'<div class="hint noprint" style="margin-top:8px">＊編輯中：點表格內時間／狀態／備註直接修改,改完按「儲存修正」。</div>':'');
-  $('rpBody').innerHTML=h;
+    '</div>';
+  return h;
+}
+/** 整個工地批次產生（唯讀,逐頁 A4,可直接列印/PDF）*/
+function loadReportBatch(){
+  var site=$('rpSite')?$('rpSite').value:'__all__';
+  RPT_EDIT=false; RPTCHG={}; RPT_LAST=null;
+  $('rpBody').innerHTML='<div class="spin">產生中…（整個工地需要一點時間）</div>';
+  if($('rpTools'))$('rpTools').innerHTML='';
+  api('admin_reportBatch',{site:site,year:yy(),month:mm()}).then(function(j){
+    if(!j.ok){ $('rpBody').innerHTML='<div class="empty">'+esc(j.msg||'產生失敗')+'</div>'; return; }
+    if($('rpTools'))$('rpTools').innerHTML='<button class="btn" onclick="window.print()">列印 / PDF（'+j.reports.length+' 頁）</button>';
+    $('rpBody').innerHTML=j.reports.map(function(r){ return '<div class="a4">'+reportHtml(r,false)+'</div>'; }).join('');
+  });
 }
 function exportReportExcel(){
   var emp=$('rpEmp').value; if(!emp){ alert('請先選擇員工'); return; }
