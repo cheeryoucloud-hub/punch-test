@@ -444,28 +444,29 @@ function scOverview(){
 function ovShift(n){ var c=state.ovCur||todayStr(); var p=c.split('/'); var dt=new Date(+p[0],+p[1]-1,+p[2]); dt.setDate(dt.getDate()+n); state.ovDate=dt.getFullYear()+'/'+p2(dt.getMonth()+1)+'/'+p2(dt.getDate()); scOverview(); }
 function ovToday(){ state.ovDate=''; state.ovCur=''; scOverview(); }
 function ovPick(v){ if(!v)return; state.ovDate=v.replace(/-/g,'/'); scOverview(); }
+function lvBoth(p){ var am=p.leaveAM||'', pm=p.leavePM||''; if(!am&&!pm)return p.leave||''; return '上午：'+(am||'—')+'　下午：'+(pm||'—'); }
 function statc(ic,svg,lab,val,unit,sub){ return '<div class="stat"><div class="ic '+ic+'">'+svg+'</div><div><div class="lab">'+lab+'</div><div class="val tnum">'+val+'<small>'+unit+'</small></div><div class="sub">'+esc(sub)+'</div></div></div>'; }
 function loadOverview(){
   api('admin_overview',{date:state.ovDate}).then(function(d){
     state.ovCur=d.date||todayStr();
     if(!d.ok){ $('ovBody').innerHTML='<div class="empty">'+esc(d.msg||'讀取失敗')+'</div>'; return; }
     var sites=d.sites||[]; var inC=0,outC=0,lv=0,tot=0, notIn=[], onLeave=[];
-    sites.forEach(function(g){ g.people.forEach(function(pp){ tot++; if(pp.leave){lv++;onLeave.push({n:pp.name,s:g.site,lv:pp.leave});return;} if(pp.in)inC++; else notIn.push({n:pp.name,s:g.site}); if(pp.out)outC++; }); });
-    var pend=d.pendingAct||0; var rate=tot?Math.round(inC/tot*100):0;
+    sites.forEach(function(g){ g.people.forEach(function(pp){ tot++; if(pp.leave){lv++;onLeave.push({n:pp.name,s:g.site,lv:lvBoth(pp)});return;} if(pp.in)inC++; else notIn.push({n:pp.name,s:g.site}); if(pp.out)outC++; }); });
+    var pend=d.pendingAct||0; var need=Math.max(0,tot-lv); var rate=need?Math.round(inC/need*100):0;   // 打卡率不含休假人數
     var h='<div class="cards">'+
       statc('g',I.work,'應出勤 <span class="sm">需打卡</span>',tot,'人','')+
       statc('g',I.overview,'已上班',inC,'人','已下班 '+outC+' 人')+
       statc('a',I.sun,'休假',lv,'人','')+
       statc('b',I.transfer,'待審核申請',pend,'件','下方可審核')+
-      '<div class="stat pink"><div class="ic r">'+I.punch+'</div><div><div class="lab">尚未打卡</div><div class="val tnum">'+notIn.length+'<small>人</small></div><div class="sub">占 '+(tot-rate*tot/100>=0?'':'')+(100-rate)+'%</div></div></div>'+
-      '<div class="stat"><div class="donut" style="background:conic-gradient(var(--brand) 0 '+rate+'%, var(--line) '+rate+'% 100%)"><span>'+rate+'%</span></div><div><div class="lab">打卡率</div><div class="sub" style="margin-top:6px">上班 '+inC+' / '+tot+' 人</div></div></div>'+
+      '<div class="stat pink"><div class="ic r">'+I.punch+'</div><div><div class="lab">尚未打卡</div><div class="val tnum">'+notIn.length+'<small>人</small></div><div class="sub">應出勤 '+need+' 人</div></div></div>'+
+      '<div class="stat"><div class="donut" style="background:conic-gradient(var(--brand) 0 '+rate+'%, var(--line) '+rate+'% 100%)"><span>'+rate+'%</span></div><div><div class="lab">打卡率</div><div class="sub" style="margin-top:6px">上班 '+inC+' / '+need+' 人（不含休假）</div></div></div>'+
       '</div>';
     if(!sites.length){ h+='<div class="panel empty">此日期範圍內無出勤資料</div>'; }
     else{
       h+='<div class="panel"><h2>各工地出勤</h2><div class="sitegrid">';
       sites.forEach(function(g){
         h+='<div class="sitecard"><div class="sh"><i></i>'+esc(g.site)+'<span class="c">'+g.people.length+'人</span></div><table class="mini"><tr><th>姓名</th><th>上班</th><th>下班</th></tr>';
-        g.people.forEach(function(pp){ if(pp.leave){ h+='<tr><td>'+esc(pp.name)+'</td><td colspan="2" class="lv">'+esc(pp.leave)+'</td></tr>'; return; }
+        g.people.forEach(function(pp){ if(pp.leave){ h+='<tr><td>'+esc(pp.name)+'</td><td colspan="2" class="lv">'+esc(lvBoth(pp))+'</td></tr>'; return; }
           h+='<tr><td>'+esc(pp.name)+'</td><td class="tnum">'+esc(pp.in||'—')+'</td><td class="tnum">'+esc(pp.out||'—')+'</td></tr>'; });
         h+='</table></div>';
       });
@@ -506,7 +507,10 @@ function scTransfer(){
     '<div class="hint" style="margin:-8px 0 12px">申請將原休假時段調整至其他日期,需經主管核准後方生效。</div>'+
     '<div class="panel"><div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:4px"><b style="font-size:15px">新增調休申請</b>'+
     '<div class="tfsteps" style="flex:1;min-width:300px"><span class="st"><span class="n">1</span>選擇員工與日期</span><span class="ln"></span><span class="st dim"><span class="n">2</span>確認休假時段</span><span class="ln"></span><span class="st dim"><span class="n">3</span>送出審核</span></div></div>'+
-    '<div class="field" style="max-width:340px;margin-top:10px"><label class="hint" style="display:block;margin-bottom:5px">員工</label><select id="tfEmp" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font-family:inherit;font-size:14px"><option value="">選擇員工…</option></select></div>'+
+    '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px">'+
+      '<div class="field" style="min-width:200px"><label class="hint" style="display:block;margin-bottom:5px">工地</label><select id="tfFormSite" onchange="tfFillEmp()" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font-family:inherit;font-size:14px"><option value="__all__">全部工地</option></select></div>'+
+      '<div class="field" style="min-width:260px"><label class="hint" style="display:block;margin-bottom:5px">員工</label><select id="tfEmp" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font-family:inherit;font-size:14px"><option value="">選擇員工…</option></select></div>'+
+    '</div>'+
     '<div class="tfcards">'+
       '<div class="tfcard"><div class="cap">原休假<span class="auto">系統自動帶入</span></div>'+
         '<input type="date" id="tfOrig">'+
@@ -530,12 +534,23 @@ function scTransfer(){
       '<select id="tfSite"><option value="__all__">全部工地</option></select>'+
       '<select id="tfStatusSel" onchange="tfFilter(this.value)"><option value="">全部狀態</option><option value="待核准">待審核</option><option value="已核准">已核准</option><option value="已退回">已退回</option></select></div>'+
     '<div id="trBody"><div class="spin">載入中…</div></div>';
-  api('admin_empList',{}).then(function(j){ if(!j.ok)return; var sel=$('tfEmp'); if(sel) sel.innerHTML='<option value="">選擇員工…</option>'+j.list.map(function(e){return '<option value="'+esc(e.empId)+'">'+esc(e.name)+'（'+esc(e.site||'—')+'）</option>';}).join('');
-    var st={}; j.list.forEach(function(e){ if(e.site)st[e.site]=1; }); if($('tfSite')) $('tfSite').innerHTML='<option value="__all__">全部工地</option>'+Object.keys(st).map(function(s){return '<option>'+esc(s)+'</option>';}).join(''); });
+  api('admin_empList',{}).then(function(j){ if(!j.ok)return;
+    state.tfEmps=j.list;
+    var st={}; j.list.forEach(function(e){ if(e.site)st[e.site]=1; });
+    var opts='<option value="__all__">全部工地</option>'+Object.keys(st).map(function(s){return '<option>'+esc(s)+'</option>';}).join('');
+    if($('tfFormSite')) $('tfFormSite').innerHTML=opts;
+    if($('tfSite')) $('tfSite').innerHTML=opts;
+    tfFillEmp(); });
   $('tfEmp').onchange=tfAuto; $('tfOrig').onchange=tfAuto; $('tfSite').onchange=loadTransfer;
   loadTransfer();
 }
 function tfFilter(v){ TF_FILTER=v; loadTransfer(); }
+function tfFillEmp(){
+  var site=$('tfFormSite')?$('tfFormSite').value:'__all__';
+  var list=(state.tfEmps||[]).filter(function(e){ return site==='__all__'||e.site===site; });
+  var sel=$('tfEmp'); if(!sel)return;
+  sel.innerHTML='<option value="">選擇員工…</option>'+list.map(function(e){return '<option value="'+esc(e.empId)+'">'+esc(e.name)+'（'+esc(e.site||'—')+'）</option>';}).join('');
+}
 function tfAuto(){
   var emp=$('tfEmp').value, dt=$('tfOrig').value; if(!emp||!dt)return;
   api('admin_leaveAt',{empId:emp,date:dt.replace(/-/g,'/')}).then(function(j){
@@ -759,7 +774,7 @@ function saveRoster(){
 }
 function noteBox(note,editable){
   if(editable) return '<div class="notesbox"><label>注意事項（隨「儲存」一起存,會印在輪休表 / Excel 下方）</label><textarea id="rosterNotes" rows="4" placeholder="每行一項,例：本月工務會議 8/8、8/22;需遵行「12休1」原則…">'+esc(note||'')+'</textarea></div>';
-  return note?('<div class="notesbox"><label>注意事項</label><div class="rnotes">'+esc(note)+'</div></div>'):'';
+  return '<div class="notesbox"><label>注意事項</label><div class="rnotes">'+(note?esc(note):'<span class="muted" style="font-weight:400">（尚未填寫;進入編輯模式可填）</span>')+'</div></div>';
 }
 function downloadB64(b64,filename){
   try{ var bin=atob(b64),len=bin.length,arr=new Uint8Array(len); for(var i=0;i<len;i++)arr[i]=bin.charCodeAt(i);
@@ -810,6 +825,7 @@ function scReport(){
     '<select id="rpEmp"><option>載入中…</option></select><span class="spacer"></span>'+
     '<button class="add" onclick="loadReport()">產生</button>'+
     '<button class="btn" onclick="loadReportBatch()">整個工地產生</button>'+
+    '<button class="btn" id="rpXlsAll" onclick="exportReportExcelBatch()">整廠匯出 Excel</button>'+
     '<span id="rpTools"></span></div>'+
     '<div class="panel" id="rpBody"><div class="empty">選擇員工與月份後按「產生」</div></div>';
   api('admin_empList',{needPunchOnly:true}).then(function(j){
@@ -918,6 +934,14 @@ function loadReportBatch(){
     if(!j.ok){ $('rpBody').innerHTML='<div class="empty">'+esc(j.msg||'產生失敗')+'</div>'; return; }
     if($('rpTools'))$('rpTools').innerHTML='<button class="btn" onclick="window.print()">列印 / PDF（'+j.reports.length+' 頁）</button>';
     $('rpBody').innerHTML=j.reports.map(function(r){ return '<div class="a4">'+reportHtml(r,false)+'</div>'; }).join('');
+  });
+}
+function exportReportExcelBatch(){
+  var site=$('rpSite')?$('rpSite').value:'__all__';
+  var btn=$('rpXlsAll'); if(btn){btn.disabled=true;btn.textContent='產生中…';}
+  api('admin_reportExcelBatch',{site:site,year:yy(),month:mm()}).then(function(j){
+    if(btn){btn.disabled=false;btn.textContent='整廠匯出 Excel';}
+    if(!j.ok){ alert(j.msg||'匯出失敗'); return; } downloadB64(j.b64,j.filename);
   });
 }
 function exportReportExcel(){
